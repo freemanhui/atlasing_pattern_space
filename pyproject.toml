@@ -1,0 +1,42 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "atlasing-pattern-space"
+version = "0.1.0"
+description = "Atlasing Pattern Space (APS): topology + causality + energy/attractor embeddings"
+readme = "README.md"
+requires-python = ">=3.10"
+license = {text = "MIT License"}
+authors = [{name = "Freeman Hui"}]
+dependencies = [
+    "numpy>=1.24",
+    "scipy>=1.10",
+    "networkx>=3.0",
+    "matplotlib>=3.7",
+    "torch>=2.1",
+    "pandas>=2.0"
+]
+
+[project.optional-dependencies]
+topology = [
+    "ripser>=0.6.4",
+    "gudhi>=3.9.0"
+]
+causality = [
+    "causal-learn>=0.1.3.9",
+    "dowhy>=0.11.1",
+]
+dev = [
+    "pytest>=7.0",
+    "ruff>=0.4.8",
+    "jupyter>=1.0.0"
+]
+
+[tool.setuptools]
+package-dir = {"" = "src"}
+packages = ["aps", "aps.topology", "aps.causality", "aps.energy", "aps.metrics", "aps.utils"]
+
+[project.scripts]
+aps = "aps_cli:main"

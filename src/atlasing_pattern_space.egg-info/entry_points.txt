@@ -1,0 +1,2 @@
+[console_scripts]
+aps = aps_cli:main
