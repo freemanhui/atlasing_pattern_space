@@ -36,7 +36,8 @@ visualization = [
 dev = [
     "pytest>=7.0",
     "ruff>=0.4.8",
-    "jupyter>=1.0.0"
+    "jupyter>=1.0.0",
+    "plotly>=5.0"
 ]
 
 [tool.setuptools]
