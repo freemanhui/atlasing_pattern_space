@@ -16,6 +16,8 @@ src/aps/topology/topo_autoencoder.py
 src/aps/utils/__init__.py
 src/aps/utils/data.py
 src/aps/utils/viz.py
+src/aps/viz/__init__.py
+src/aps/viz/backends/__init__.py
 src/atlasing_pattern_space.egg-info/PKG-INFO
 src/atlasing_pattern_space.egg-info/SOURCES.txt
 src/atlasing_pattern_space.egg-info/dependency_links.txt
