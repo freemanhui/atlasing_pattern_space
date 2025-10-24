@@ -49,7 +49,7 @@ class PlotlyBackend:
         if config.show_memory_markers and landscape.memory_patterns:
             x_markers = [mp.position_2d[0] for mp in landscape.memory_patterns]
             y_markers = [mp.position_2d[1] for mp in landscape.memory_patterns]
-            energies = [mp.energy for mp in landscape.memory_patterns]
+            [mp.energy for mp in landscape.memory_patterns]
             
             markers = go.Scatter(
                 x=x_markers,

@@ -52,7 +52,9 @@ class TopologicalAutoencoder(nn.Module):
             loss_recon = self.mse(xhat, X)
             loss_topo = self.topo(z, target_adj)
             loss = loss_recon + self.cfg.topo_weight * loss_topo
-            opt.zero_grad(); loss.backward(); opt.step()
+            opt.zero_grad()
+            loss.backward()
+            opt.step()
             if (ep+1) % max(1, epochs//5) == 0:
                 print(f"[TopoAE] {ep+1}/{epochs} recon={loss_recon.item():.4f} topo={loss_topo.item():.4f}")
         return self

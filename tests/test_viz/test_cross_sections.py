@@ -8,7 +8,6 @@ Tests cover:
 - Linked 1D-2D highlighting (T064)
 """
 
-import pytest
 import numpy as np
 import pandas as pd
 
@@ -295,7 +294,7 @@ class TestCrossSectionIntegration:
         
         # Create cross-section through center of landscape
         bounds = sample_landscape.bounds
-        center_x = (bounds[0] + bounds[1]) / 2
+        (bounds[0] + bounds[1]) / 2
         center_y = (bounds[2] + bounds[3]) / 2
         
         cross_section = viz.plot_cross_section(

@@ -274,7 +274,6 @@ class EnergyLandscapeVisualizer:
         # Cluster convergence points to identify distinct basins
         from collections import defaultdict
         basin_clusters = defaultdict(list)
-        tolerance = 0.1  # Distance threshold for same basin
         
         for i, point in enumerate(convergence_points):
             # Find nearest memory pattern

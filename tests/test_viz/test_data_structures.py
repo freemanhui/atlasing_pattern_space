@@ -10,7 +10,6 @@ from aps.viz.data_structures import (
     EnergyLandscape,
     MemoryPattern,
     Basin,
-    Point,
     Trajectory,
     CrossSection
 )

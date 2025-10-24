@@ -15,8 +15,10 @@ def knn_preservation(ref: np.ndarray, test: np.ndarray, k: int = 10) -> float:
     b = knn_indices(test, k)
     j = []
     for i in range(ref.shape[0]):
-        A = set(a[i]); B = set(b[i])
-        u = len(A|B); inter = len(A&B)
+        A = set(a[i])
+        B = set(b[i])
+        u = len(A|B)
+        inter = len(A&B)
         j.append(inter/u if u else 0.0)
     return float(np.mean(j))
 
@@ -24,9 +26,11 @@ def trustworthiness(X: np.ndarray, X_emb: np.ndarray, k: int = 10) -> float:
     # Trustworthiness without sklearn (following the textbook definition)
     n = X.shape[0]
     # rank neighbors in original space
-    dX = _pairwise_d2(X); orderX = np.argsort(dX, axis=1)
+    dX = _pairwise_d2(X)
+    orderX = np.argsort(dX, axis=1)
     # rank neighbors in embedded space
-    dY = _pairwise_d2(X_emb); orderY = np.argsort(dY, axis=1)
+    dY = _pairwise_d2(X_emb)
+    orderY = np.argsort(dY, axis=1)
     ranksX = [ {nbr: rank for rank, nbr in enumerate(orderX[i])} for i in range(n) ]
     T = 0.0
     for i in range(n):

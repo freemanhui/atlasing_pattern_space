@@ -3,11 +3,16 @@
 Compare different energy variants in 3D (energy as height).
 """
 
-from aps.energy import *
+import os
 import torch
 import numpy as np
 import plotly.graph_objects as go
 from plotly.subplots import make_subplots
+from aps.energy import (
+    MemoryEnergy, MemoryEnergyConfig,
+    RBFEnergy, RBFEnergyConfig,
+    MixtureEnergy, MixtureEnergyConfig
+)
 
 print("Creating 3D energy surface comparison...")
 
@@ -115,7 +120,6 @@ fig.update_layout(
 )
 
 # Save
-import os
 os.makedirs('outputs', exist_ok=True)
 output_file = 'outputs/energy_comparison_3d.html'
 fig.write_html(output_file)

@@ -9,7 +9,6 @@ Tests cover:
 """
 
 import time
-import pytest
 import numpy as np
 
 from aps.viz import EnergyLandscapeVisualizer
@@ -136,7 +135,7 @@ class TestTrajectoryPerformance:
         
         # Time trajectory computation
         start = time.time()
-        trajectory = viz.add_trajectory(sample_landscape, (1.5, 1.5))
+        viz.add_trajectory(sample_landscape, (1.5, 1.5))
         elapsed = time.time() - start
         
         # SC-003: < 2 seconds per trajectory
@@ -205,7 +204,7 @@ class TestMultipleTrajectories:
             trajectories.append(traj)
         
         # Should converge to different basins
-        basin_ids = [t.destination_basin_id for t in trajectories]
+        [t.destination_basin_id for t in trajectories]
         # If mock has multiple patterns in different locations, they should differ
         # (This test might pass even if they're the same for simple mocks)
         assert len(trajectories) == 2

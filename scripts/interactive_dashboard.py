@@ -8,7 +8,6 @@ the energy landscape.
 """
 
 import torch
-import numpy as np
 from aps.energy import MemoryEnergy, MemoryEnergyConfig
 from aps.viz import EnergyLandscapeVisualizer
 import plotly.graph_objects as go
@@ -112,9 +111,9 @@ def create_dashboard(output_file='outputs/interactive_dashboard.html'):
     # Save
     fig.write_html(output_file)
     print(f"✓ Created interactive dashboard: {output_file}")
-    print(f"  - Compare 4 different beta values")
-    print(f"  - Hover to see exact coordinates and energy")
-    print(f"  - Zoom and pan each subplot independently")
+    print("  - Compare 4 different beta values")
+    print("  - Hover to see exact coordinates and energy")
+    print("  - Zoom and pan each subplot independently")
     
     return fig
 

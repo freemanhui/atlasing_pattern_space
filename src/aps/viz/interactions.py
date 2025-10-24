@@ -9,7 +9,7 @@ from dataclasses import dataclass
 from typing import Optional, List, Tuple
 import numpy as np
 
-from .data_structures import EnergyLandscape, Point, Basin
+from .data_structures import EnergyLandscape, Basin
 
 
 @dataclass

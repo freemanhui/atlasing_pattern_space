@@ -3,10 +3,17 @@
 Create detailed 3D view of each energy variant separately.
 """
 
-from aps.energy import *
+import os
 import torch
 import numpy as np
 import plotly.graph_objects as go
+from aps.energy import (
+    MemoryEnergy, MemoryEnergyConfig,
+    RBFEnergy, RBFEnergyConfig,
+    MixtureEnergy, MixtureEnergyConfig
+)
+
+os.makedirs('outputs', exist_ok=True)
 
 print("Creating detailed 3D views for each variant...")
 

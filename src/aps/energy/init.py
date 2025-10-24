@@ -6,7 +6,7 @@ Provides various initialization methods for memory patterns in energy models.
 
 import torch
 import numpy as np
-from typing import Optional, Tuple
+from typing import Tuple
 
 
 def random_init(n_mem: int, latent_dim: int, scale: float = 0.5) -> torch.Tensor:
@@ -249,7 +249,7 @@ def pca_init(data: torch.Tensor, n_mem: int) -> torch.Tensor:
     
     for i in range(latent_dim):
         # Spread along i-th component
-        component = U[:, i]
+        U[:, i]
         scales = torch.linspace(-S[i].item(), S[i].item(), per_component)
         
         for scale in scales:

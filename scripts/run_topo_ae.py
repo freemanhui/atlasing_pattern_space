@@ -1,4 +1,7 @@
-import argparse, os, numpy as np, torch, pandas as pd
+import argparse
+import os
+import torch
+import pandas as pd
 from aps.utils import toy_corpus, cooc_ppmi, svd_embed, scatter_labels
 from aps.topology import TopologicalAutoencoder, TopoAEConfig, knn_indices, adjacency_from_knn
 

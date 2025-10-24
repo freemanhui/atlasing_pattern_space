@@ -9,7 +9,6 @@ Includes cross-sectional slices and 3D scatter plots of embeddings.
 import torch
 import numpy as np
 from aps.energy import MemoryEnergy, MemoryEnergyConfig
-from aps.viz import EnergyLandscapeVisualizer
 import plotly.graph_objects as go
 from plotly.subplots import make_subplots
 
@@ -70,7 +69,7 @@ def create_3d_memory_cube(output_file='outputs/energy_3d_cube.html'):
     
     # Add memory patterns as large markers
     with torch.no_grad():
-        mem_energy = energy_module(cube_corners).numpy()
+        energy_module(cube_corners).numpy()
     
     fig.add_trace(go.Scatter3d(
         x=cube_corners[:, 0].numpy(),
@@ -126,9 +125,9 @@ def create_3d_memory_cube(output_file='outputs/energy_3d_cube.html'):
     
     fig.write_html(output_file)
     print(f"✓ Created 3D cube visualization: {output_file}")
-    print(f"  - 3D latent space (latent_dim=3)")
+    print("  - 3D latent space (latent_dim=3)")
     print(f"  - {n_samples} sample points colored by energy")
-    print(f"  - Memory patterns at cube vertices")
+    print("  - Memory patterns at cube vertices")
     
     return fig
 
@@ -242,7 +241,7 @@ def create_3d_slices(output_file='outputs/energy_3d_slices.html'):
     fig.write_html(output_file)
     print(f"✓ Created 3D slice visualization: {output_file}")
     print(f"  - {len(z_levels)} cross-sections at different z-levels")
-    print(f"  - Shows how energy structure varies through 3D space")
+    print("  - Shows how energy structure varies through 3D space")
     
     return fig
 
@@ -351,7 +350,7 @@ def create_3d_trajectory(output_file='outputs/energy_3d_trajectory.html'):
     fig.write_html(output_file)
     print(f"✓ Created 3D trajectory visualization: {output_file}")
     print(f"  - {n_trajectories} gradient descent trajectories")
-    print(f"  - Shows basin attraction in 3D space")
+    print("  - Shows basin attraction in 3D space")
     
     return fig
 

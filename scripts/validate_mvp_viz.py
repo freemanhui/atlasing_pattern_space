@@ -10,7 +10,6 @@ import time
 import os
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
 
-import torch
 from aps.viz import EnergyLandscapeVisualizer, VisualizationConfig
 
 # Import shared test fixture

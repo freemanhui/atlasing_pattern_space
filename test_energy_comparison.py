@@ -3,10 +3,15 @@
 Compare different energy variants visually.
 """
 
-from aps.energy import *
+import os
 import torch
 import matplotlib.pyplot as plt
 import numpy as np
+from aps.energy import (
+    MemoryEnergy, MemoryEnergyConfig,
+    RBFEnergy, RBFEnergyConfig,
+    MixtureEnergy, MixtureEnergyConfig
+)
 
 print("Creating energy landscape comparison...")
 
@@ -46,7 +51,6 @@ for ax, (name, energy_model) in zip(axes, energies.items()):
 plt.suptitle('Energy Landscape Comparison: Different Variants', fontsize=14, fontweight='bold', y=1.02)
 plt.tight_layout()
 
-import os
 os.makedirs('outputs', exist_ok=True)
 plt.savefig('outputs/energy_comparison.png', dpi=150, bbox_inches='tight')
 print("✓ Saved comparison to outputs/energy_comparison.png")

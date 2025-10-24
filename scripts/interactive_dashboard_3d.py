@@ -7,7 +7,6 @@ Creates intuitive "terrain" view of basins and barriers.
 """
 
 import torch
-import numpy as np
 from aps.energy import MemoryEnergy, MemoryEnergyConfig
 from aps.viz import EnergyLandscapeVisualizer
 import plotly.graph_objects as go
@@ -138,9 +137,9 @@ def create_3d_surface_comparison(output_file='outputs/energy_3d_surfaces.html'):
     
     fig.write_html(output_file)
     print(f"✓ Created 3D surface comparison: {output_file}")
-    print(f"  - Rotate by clicking and dragging")
-    print(f"  - Zoom with scroll wheel")
-    print(f"  - See basin depth as actual valleys")
+    print("  - Rotate by clicking and dragging")
+    print("  - Zoom with scroll wheel")
+    print("  - See basin depth as actual valleys")
     
     return fig
 
@@ -238,9 +237,9 @@ def create_single_detailed_3d(output_file='outputs/energy_3d_detailed.html'):
     
     fig.write_html(output_file)
     print(f"✓ Created detailed 3D surface: {output_file}")
-    print(f"  - High resolution (100x100 grid)")
-    print(f"  - Contour projections on base")
-    print(f"  - Labeled memory patterns")
+    print("  - High resolution (100x100 grid)")
+    print("  - Contour projections on base")
+    print("  - Labeled memory patterns")
     
     return fig
 
@@ -326,8 +325,8 @@ def create_wireframe_comparison(output_file='outputs/energy_3d_wireframe.html'):
     
     fig.write_html(output_file)
     print(f"✓ Created wireframe comparison: {output_file}")
-    print(f"  - Wireframe emphasizes structure")
-    print(f"  - Use dropdown to switch beta")
+    print("  - Wireframe emphasizes structure")
+    print("  - Use dropdown to switch beta")
     
     return fig
 

@@ -9,7 +9,6 @@ Tests cover:
 """
 
 import time
-import pytest
 import numpy as np
 
 from aps.viz.interactions import InteractionHandler, PointInfo, ComparisonResult

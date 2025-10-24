@@ -7,8 +7,6 @@ Tests written FIRST following TDD approach.
 import time
 import numpy as np
 import pytest
-import torch
-from .fixtures import mock_energy_2d, sample_landscape
 
 
 def test_visualizer_initialization(mock_energy_2d):

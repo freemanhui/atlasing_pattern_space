@@ -10,9 +10,8 @@ Demonstrates all four user stories:
 """
 
 import torch
-import numpy as np
 from aps.energy import MemoryEnergy, MemoryEnergyConfig
-from aps.viz import EnergyLandscapeVisualizer, VisualizationConfig
+from aps.viz import EnergyLandscapeVisualizer
 
 def main():
     print("=" * 70)

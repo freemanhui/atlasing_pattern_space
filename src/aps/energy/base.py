@@ -8,7 +8,6 @@ All energy variants should inherit from BaseEnergy.
 from abc import ABC, abstractmethod
 import torch
 import torch.nn as nn
-from typing import Optional
 
 
 class BaseEnergy(nn.Module, ABC):

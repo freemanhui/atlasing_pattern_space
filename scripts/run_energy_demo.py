@@ -1,4 +1,7 @@
-import argparse, os, numpy as np, torch, matplotlib.pyplot as plt
+import argparse
+import os
+import torch
+import matplotlib.pyplot as plt
 from aps.utils import toy_corpus, cooc_ppmi, svd_embed
 from aps.topology import TopologicalAutoencoder, TopoAEConfig
 from aps.energy import MemoryEnergy, MemoryEnergyConfig
@@ -28,7 +31,9 @@ def main():
     opt = torch.optim.Adam(mem.parameters(), lr=1e-2)
     for ep in range(200):
         loss = mem.loss(Z)
-        opt.zero_grad(); loss.backward(); opt.step()
+        opt.zero_grad()
+        loss.backward()
+        opt.step()
 
     # Static matplotlib visualization
     E = mem.energy(Z).detach().numpy()
