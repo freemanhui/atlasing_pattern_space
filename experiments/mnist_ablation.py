@@ -387,20 +387,26 @@ def run_ablation_study(
         
         # Calculate individual metrics
         from utils.metrics import (
-            trustworthiness, continuity, knn_preservation,
-            clustering_metrics, reconstruction_error
+            compute_topology_metrics,
+            compute_clustering_metrics,
+            compute_reconstruction_error,
         )
         
-        metrics = {
-            "reconstruction_error": reconstruction_error(test_data_flat, reconstructions),
-            "trustworthiness": trustworthiness(test_data_flat, embeddings, k=15),
-            "continuity": continuity(test_data_flat, embeddings, k=15),
-            "knn_preservation": knn_preservation(test_data_flat, embeddings, k=15),
-        }
+        # Topology metrics
+        topo_metrics = compute_topology_metrics(test_data_flat, embeddings, k=15)
         
-        # Add clustering metrics
-        cluster_metrics = clustering_metrics(embeddings, labels_array)
-        metrics.update(cluster_metrics)
+        # Clustering metrics  
+        cluster_metrics = compute_clustering_metrics(embeddings, labels_array)
+        
+        # Reconstruction error
+        recon_error = compute_reconstruction_error(test_data_flat, reconstructions)
+        
+        # Combine all metrics
+        metrics = {
+            "reconstruction_error": recon_error,
+            **topo_metrics,
+            **cluster_metrics,
+        }
         
         # Store results
         all_results[config_name] = {
