@@ -1,0 +1,9 @@
+{
+  "topo/trustworthiness": 0.9100366708398017,
+  "topo/continuity": 0.945545601682608,
+  "topo/knn_preservation": 0.05129536737772032,
+  "cluster/ari": 0.3606590152920265,
+  "cluster/nmi": 0.5444092912857511,
+  "cluster/silhouette": 0.4231606423854828,
+  "reconstruction/mse": 0.04028831794857979
+}
