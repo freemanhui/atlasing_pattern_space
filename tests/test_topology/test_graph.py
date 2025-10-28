@@ -203,17 +203,17 @@ class TestKNNGraph:
         assert adj.dtype == torch.float32
     
     def test_knn_graph_k_ones_per_row(self):
-        """Test that each row has exactly k ones."""
+        """Test that each row has exactly k ones (discrete mode)."""
         X = torch.randn(100, 50)
         k = 8
-        adj = knn_graph(X, k)
+        adj = knn_graph(X, k, continuous=False)
         
         row_sums = adj.sum(dim=1)
         # Each row should have exactly k ones
         assert torch.allclose(row_sums, torch.full_like(row_sums, float(k)))
     
     def test_knn_graph_symmetric_structure(self):
-        """Test knn_graph on simple symmetric data."""
+        """Test knn_graph on simple symmetric data (discrete mode)."""
         # Create data where distances are symmetric
         X = torch.tensor([
             [0.0, 0.0],
@@ -222,7 +222,7 @@ class TestKNNGraph:
             [5.0, 5.0]  # Far point
         ])
         
-        adj = knn_graph(X, k=2)
+        adj = knn_graph(X, k=2, continuous=False)
         
         # First 3 points should have each other as neighbors (not point 3)
         for i in range(3):
@@ -233,12 +233,12 @@ class TestKNNGraph:
             assert 3 not in neighbors
     
     def test_knn_graph_integration(self):
-        """Integration test: knn_graph should equal knn_indices + adjacency_from_knn."""
+        """Integration test: knn_graph (discrete) should equal knn_indices + adjacency_from_knn."""
         X = torch.randn(50, 20)
         k = 5
         
-        # Method 1: Use knn_graph
-        adj1 = knn_graph(X, k)
+        # Method 1: Use knn_graph with discrete mode
+        adj1 = knn_graph(X, k, continuous=False)
         
         # Method 2: Use separate functions
         indices = knn_indices(X, k)
@@ -246,6 +246,33 @@ class TestKNNGraph:
         
         # Should be identical
         assert torch.allclose(adj1, adj2)
+    
+    def test_knn_graph_continuous_mode(self):
+        """Test continuous (differentiable) mode of knn_graph."""
+        X = torch.randn(50, 20, requires_grad=True)
+        k = 5
+        
+        adj = knn_graph(X, k, continuous=True)
+        
+        # Shape should be correct
+        assert adj.shape == (50, 50)
+        
+        # Values should be in [0, 1] (sigmoid outputs)
+        assert torch.all((adj >= 0) & (adj <= 1))
+        
+        # Should be differentiable
+        loss = adj.sum()
+        loss.backward()
+        assert X.grad is not None
+        
+        # Diagonal should be zero (no self-loops)
+        assert torch.allclose(torch.diag(adj), torch.zeros(50))
+        
+        # Each row should have approximately k high values (soft k-NN)
+        # With sigmoid, values near 1 indicate neighbors
+        high_values = (adj > 0.5).sum(dim=1).float()
+        # Allow some variation due to soft boundaries
+        assert high_values.mean().item() > k * 0.5  # At least half of k on average
 
 
 class TestPerformance:
@@ -286,7 +313,7 @@ class TestPerformance:
         k = 8
         
         start = time.time()
-        adj = knn_graph(X, k)
+        adj = knn_graph(X, k, continuous=False)  # Use discrete for consistency with original tests
         elapsed = time.time() - start
         
         # Combined should still be fast (< 1 second)
