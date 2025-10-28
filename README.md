@@ -1,4 +1,24 @@
-# APS Key Concepts: Simple Explanation
+# Atlasing Pattern Space (APS)
+
+[![Paper](https://img.shields.io/badge/Paper-PDF-red)](paper/paper_merged.pdf)
+[![Code](https://img.shields.io/badge/Code-Python-blue)](src/aps/)
+
+## Latest Results: TopologyEnergy Breakthrough 🎉
+
+**Key Finding**: Memory-based energy functions catastrophically fail when combined with topology preservation. Our new **TopologyEnergy** approach achieves:
+
+- ✅ **902% better label alignment** (ARI: 0.32 vs 0.03)
+- ✅ **51.6% better trustworthiness** (0.88 vs 0.58)
+- ✅ **Maintained reconstruction** (0.31 vs 11.7M collapse)
+- ✅ **No additional parameters** (data-driven basins)
+
+**See**: 
+- Full paper with results: [`paper/paper_merged.pdf`](paper/paper_merged.pdf)
+- Implementation: [`src/aps/energy/topology_energy.py`](src/aps/energy/topology_energy.py)
+- Experiments: [`experiments/mnist_topo_energy_comparison.py`](experiments/mnist_topo_energy_comparison.py)
+- Analysis: [`docs/TOPOLOGY_ENERGY_SUMMARY.md`](docs/TOPOLOGY_ENERGY_SUMMARY.md)
+
+---
 
 ## Core Idea: Structured Pattern Space
 
@@ -68,30 +88,36 @@ Learn embeddings that ignore nuisance, focus on object identity
 
 ---
 
-### 3. Energy (E) - Attraction Basins
+### 3. Energy (E) - TopologyEnergy (Data-Driven Basins)
 
-**Simple Analogy**: Like valleys in a landscape - balls roll into the nearest valley.
+**Simple Analogy**: Like valleys that form naturally where water flows - basins emerge from the data's own structure.
 
 **What it does**:
-- Creates "attractor points" (memory patterns) in latent space
-- Points naturally flow toward the nearest similar pattern
-- Shapes the space with "hills" (high energy) and "valleys" (low energy)
+- Creates energy wells based on local neighborhood density
+- Lower energy where k-NN relationships are preserved
+- No arbitrary memory patterns - structure comes from data itself
 
 **Why it matters**:
-- Organizes embeddings into interpretable regions
-- Enables outlier detection (high energy = doesn't fit any pattern)
-- Supports generation (follow gradients to valid examples)
+- **Aligns with rather than competes with topology** (902% better label alignment vs memory-based)
+- Organizes embeddings into interpretable regions without preset patterns
+- Avoids catastrophic failure seen with memory-based approaches
+- No additional learnable parameters needed
 
-**In code**: `aps.energy.MemoryEnergy` (and variants) define energy landscapes
+**In code**: `aps.energy.TopologyEnergy` defines data-driven energy landscapes
 
-**Formula**: `E(z) = f(z, memory_patterns)` where lower energy = better fit
+**Formula**: `E(z) = -1/k * Σ sim(z, z_neighbors)` where lower energy = high local density
+
+**Key Innovation**: Energy reinforces topology preservation instead of competing with it
 
 **Example**:
 ```
-Text embeddings:
-  Memory patterns at: [sports, politics, tech, entertainment]
-  New document: "basketball game" → flows to "sports" basin
-  High energy point → outlier or new category
+MNIST digit embeddings:
+  Energy landscape emerges from digit similarities
+  Digit "4" → low energy in region where 4's cluster
+  Similar digits (4 and 9) → nearby low-energy regions
+  High energy point → outlier or ambiguous digit
+  
+Result: 902% better ARI than memory-based energy (0.32 vs 0.03)
 ```
 
 ---
@@ -235,35 +261,35 @@ Like making an **atlas** (book of maps):
 
 ## Energy Variants: Basin Shapes
 
-### MemoryEnergy (Dot Product)
+### TopologyEnergy (Data-Driven) ⭐ **Recommended**
 ```
-  Pattern
-     ↓
-  ⬇️⬇️⬇️  ← Directional basins
-   ⬇️⬇️   (like word vectors)
-    ⬇️
+  High-Density Region
+        ↓
+     ⤵️⤵️⤵️
+    ⤵️ LOW ⤵️  ← Basins form where
+     ⤵️⤵️⤵️     neighbors cluster
 ```
-**Use for**: Text, oriented relationships
+**Benefits**: 
+- No learnable parameters
+- Aligns with topology (902% better ARI)
+- Avoids catastrophic failure
+- Scales efficiently
 
-### RBFEnergy (Gaussian)
-```
-    Pattern
-      ↓
-   ⤵️⤵️⤵️⤵️
-  ⤵️  ⬇️  ⤵️  ← Circular basins
-   ⤵️⤵️⤵️⤵️   (isotropic)
-```
-**Use for**: Clustering, spatial data
+**Use for**: All applications (default choice)
 
-### MixtureEnergy (Learnable)
+### MemoryEnergy (Legacy - Not Recommended)
 ```
-Pattern 1 (strong)    Pattern 2 (weak)
-     ↓                    ↓
-  ⬇️⬇️⬇️⬇️              ⤵️⤵️
-  ⬇️⬇️⬇️⬇️   vs       ⤵️⤵️
-   ⬇️⬇️⬇️             ⤵️
+  Memory Pattern
+       ↓
+    ⬇️⬇️⬇️  ← Fixed attractor
+     ⬇️⬇️
+      ⬇️
 ```
-**Use for**: Imbalanced categories, hierarchical data
+**Issue**: Competes with topology, causes catastrophic failure
+- Reconstruction error: 11.7M (collapsed)
+- ARI: 0.03 (92% degradation)
+
+**Status**: Deprecated in favor of TopologyEnergy
 
 ---
 
@@ -271,10 +297,12 @@ Pattern 1 (strong)    Pattern 2 (weak)
 
 ### 1. **Understand Data Structure**
 ```python
-# Visualize how patterns organize
-energy_model = MemoryEnergy(cfg)
-landscape = visualizer.compute_landscape()
-# See basins, boundaries, outlier regions
+# Visualize how patterns organize with TopologyEnergy
+from aps.energy import TopologyEnergy
+
+energy_model = TopologyEnergy(k=15)
+energy_values = energy_model(z_latent)  # Lower = denser regions
+# See natural basins forming around high-density clusters
 ```
 
 ### 2. **Detect Outliers**
@@ -358,9 +386,16 @@ Data → Neural Network → Embeddings
 
 ## Further Reading
 
-- **Energy Framework**: `docs/ENERGY_FRAMEWORK_OVERVIEW.md`
-- **Visualization Guide**: `docs/VISUALIZATION_GUIDE.md`
-- **Main Docs**: `WARP.md`
-- **Code**: `src/aps/`
+### Key Documents
+- 📝 **Paper**: `paper/paper_merged.pdf` - Full TopologyEnergy results
+- ⭐ **TopologyEnergy Guide**: `docs/topology_energy_guide.md`
+- 📊 **Results Summary**: `docs/TOPOLOGY_ENERGY_SUMMARY.md`
+- 🔧 **Development Guide**: `WARP.md`
+- 💾 **Code**: `src/aps/`
 
-The visualizations in `outputs/` show these concepts in action!
+### Experimental Results
+- MNIST comparison: `experiments/results/ablation_summary.csv`
+- Visualizations: `outputs/topo_energy_comparison/`
+- Analysis notebooks: `experiments/analyze_results.py`
+
+The visualizations show TopologyEnergy dramatically outperforming memory-based approaches!
