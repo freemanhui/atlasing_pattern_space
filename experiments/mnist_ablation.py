@@ -33,7 +33,7 @@ from tqdm import tqdm
 from aps.topology import KNNTopoLoss, TopologicalAutoencoder
 from aps.causality import HSICLoss
 from aps.energy import MemoryEnergy, MemoryEnergyConfig
-from utils.metrics import evaluate_model
+from utils.metrics import evaluate_model_comprehensive
 
 
 def setup_dirs() -> Tuple[Path, Path, Path]:
@@ -375,7 +375,7 @@ def run_ablation_study(
         test_data_tensor = test_loader.dataset.data.float() / 255.0
         test_data_flat = test_data_tensor.view(-1, 784).numpy()
         
-        metrics = evaluate_model(
+        metrics = evaluate_model_comprehensive(
             model.encoder,
             test_data_flat,
             labels_array,
