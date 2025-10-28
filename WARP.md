@@ -28,10 +28,19 @@ make dev      # Full setup with all extras
 
 ### Running Experiments
 ```bash
-# Run topology-preserving autoencoder
-python scripts/run_topo_ae.py --latent 2 --epochs 100 --topo-weight 1.0
+# Run unified APS experiments with ablation studies
+python scripts/run_aps_experiment.py --experiment full --epochs 100
+python scripts/run_aps_experiment.py --experiment T-only --epochs 100
+python scripts/run_aps_experiment.py --experiment baseline --epochs 100
 
-# Run energy basin demonstration
+# Custom configuration
+python scripts/run_aps_experiment.py --latent 10 --lambda-T 0.5 --lambda-E 0.1 --epochs 50
+
+# With tensorboard logging
+python scripts/run_aps_experiment.py --experiment full --tensorboard --epochs 100
+
+# Legacy demos (individual components)
+python scripts/run_topo_ae.py --latent 2 --epochs 100 --topo-weight 1.0
 python scripts/run_energy_demo.py
 
 # Using CLI tool
@@ -63,6 +72,8 @@ make lint
 ### Module Structure
 ```
 src/aps/
+├── models/         # Unified models (APSAutoencoder)
+├── training/       # Training pipeline (Trainer, config, logging)
 ├── topology/       # Topology preservation
 ├── causality/      # Causal learning components
 ├── energy/         # Energy-based attractors
@@ -71,6 +82,33 @@ src/aps/
 ```
 
 ### Key Components
+
+#### Models (`aps.models`)
+- **`APSAutoencoder`**: Unified autoencoder combining T+C+E losses
+  - Loss: `L_total = L_recon + λ_T·L_topo + λ_C·L_hsic + λ_E·L_energy`
+  - Modular MLP encoder/decoder with configurable hidden layers
+  - Independent weight control for ablation studies
+- **`APSConfig`**: Comprehensive configuration dataclass
+  - Architecture params: `in_dim`, `latent_dim`, `hidden_dims`
+  - Loss weights: `lambda_T`, `lambda_C`, `lambda_E`
+  - Component-specific: `topo_k`, `hsic_sigma`, `n_mem`, `beta`, `alpha`
+
+#### Training (`aps.training`)
+- **`Trainer`**: Unified training loop with progress tracking
+  - Train/validation phases with tqdm progress bars
+  - Automatic checkpointing (best, final, periodic)
+  - Early stopping with patience
+  - Learning rate scheduling
+  - Gradient clipping
+  - Resume from checkpoint
+- **`TrainingConfig`**: Training configuration
+  - Optimizer: Adam, AdamW, SGD
+  - Scheduler: Step, Cosine, Exponential
+  - Logging: tensorboard, wandb, JSON
+- **`MetricsLogger`**: Tracks all loss components over time
+  - Step-level and epoch-level metrics
+  - Optional tensorboard/wandb integration
+  - JSON export for analysis
 
 #### Topology (`aps.topology`)
 - **`KNNTopoLoss`**: BCE-based loss that preserves kNN adjacency between original and latent space
@@ -126,6 +164,35 @@ The topology loss compares kNN adjacency matrices in original vs. latent space u
 Models use dataclass configs for hyperparameters:
 
 ```python
+# Unified APS Model
+from aps.models import APSConfig, APSAutoencoder
+from aps.training import Trainer, TrainingConfig
+
+model_cfg = APSConfig(
+    in_dim=50,           # Input dimension
+    latent_dim=2,        # Latent space dimension
+    hidden_dims=[64],    # Hidden layer sizes
+    lambda_T=1.0,        # Topology weight
+    lambda_C=1.0,        # Causality weight
+    lambda_E=1.0,        # Energy weight
+    topo_k=8,            # k for kNN
+    n_mem=8,             # Number of memory patterns
+    beta=5.0,            # Energy sharpness
+)
+
+train_cfg = TrainingConfig(
+    epochs=100,
+    batch_size=32,
+    optimizer=OptimizerConfig(name='adam', lr=1e-3),
+    device='cpu',
+    experiment_name='aps_full',
+)
+
+model = APSAutoencoder(model_cfg)
+trainer = Trainer(model, train_cfg)
+trainer.train(train_loader, val_loader)
+
+# Legacy configs (individual components)
 # Topology Autoencoder
 TopoAEConfig(
     in_dim=50,           # Input dimension
