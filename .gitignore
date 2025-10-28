@@ -8,3 +8,12 @@ __pycache__/
 .ruff_cache/
 outputs/
 .codex/
+
+# LaTeX auxiliary files
+*.aux
+*.log
+*.out
+*.toc
+*.bbl
+*.blg
+*.synctex.gz
