@@ -30,7 +30,7 @@ from scipy.spatial.distance import cdist
 from sklearn.neighbors import KNeighborsClassifier
 
 from aps.topology import KNNTopoLoss
-from aps.causality import HSICIndependenceLoss
+from aps.causality import HSICLoss
 from aps.energy import MemoryEnergy, MemoryEnergyConfig
 from utils.metrics import (
     knn_preservation,
@@ -94,7 +94,7 @@ class AblationModel(nn.Module):
             self.topo_weight = topo_weight
         
         if use_causal:
-            self.hsic_loss_fn = HSICIndependenceLoss()
+            self.hsic_loss_fn = HSICLoss()
             self.causal_weight = causal_weight
         
         if use_energy:
