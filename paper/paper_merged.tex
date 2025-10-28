@@ -766,6 +766,25 @@ Silhouette & 0.36 & 0.37 & 0.53 & \textbf{0.48} \\
 
 \subsection{Qualitative Analysis}
 
+\begin{figure}[h]
+  \centering
+  \begin{minipage}{0.48\textwidth}
+    \centering
+    \includegraphics[width=\textwidth]{illustrated/memory_embedding.png}
+  \end{minipage}
+  \hfill
+  \begin{minipage}{0.48\textwidth}
+    \centering
+    \includegraphics[width=\textwidth]{illustrated/topo_embedding.png}
+  \end{minipage}
+  \caption{\textbf{Comparison of MemoryEnergy vs TopologyEnergy embeddings on MNIST.}
+  \textbf{Left:} T+C+E with MemoryEnergy shows catastrophic collapse into a tight,
+  meaningless cluster (ARI=0.03). \textbf{Right:} T+C+E with TopologyEnergy preserves
+  digit structure with well-separated, semantically meaningful clusters (ARI=0.32).
+  Colors indicate digit labels (0-9).}
+  \label{fig:memory_vs_topo}
+\end{figure}
+
 Figure~\ref{fig:memory_vs_topo} compares the latent embeddings learned by
 MemoryEnergy vs TopologyEnergy. The MemoryEnergy embedding (left) shows
 catastrophic collapse: the representation collapses into a tight, meaningless
