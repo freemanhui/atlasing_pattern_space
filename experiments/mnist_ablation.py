@@ -32,7 +32,7 @@ from tqdm import tqdm
 
 from aps.topology import KNNTopoLoss, TopologicalAutoencoder
 from aps.causality import HSICLoss
-from aps.energy import MemoryEnergy, MemoryEnergyConfig
+from aps.energy import MemoryEnergy, MemoryEnergyConfig, TopologyEnergy, TopologyEnergyConfig
 from utils.metrics import evaluate_model_comprehensive
 
 
@@ -99,6 +99,7 @@ class AblationModel(nn.Module):
         topo_weight: float = 1.0,
         causal_weight: float = 1.0,
         energy_weight: float = 0.1,
+        energy_type: str = 'memory',  # 'memory' or 'topology'
         n_mem: int = 10,
         beta: float = 5.0,
     ):
@@ -133,10 +134,23 @@ class AblationModel(nn.Module):
         
         # Energy
         if use_energy:
-            cfg = MemoryEnergyConfig(
-                latent_dim=latent_dim, n_mem=n_mem, beta=beta, alpha=0.0
-            )
-            self.energy_fn = MemoryEnergy(cfg)
+            self.energy_type = energy_type
+            if energy_type == 'memory':
+                cfg = MemoryEnergyConfig(
+                    latent_dim=latent_dim, n_mem=n_mem, beta=beta, alpha=0.0
+                )
+                self.energy_fn = MemoryEnergy(cfg)
+            elif energy_type == 'topology':
+                cfg = TopologyEnergyConfig(
+                    latent_dim=latent_dim,
+                    k=topo_k,
+                    mode='agreement',
+                    continuous=True,
+                    scale=1.0
+                )
+                self.energy_fn = TopologyEnergy(cfg)
+            else:
+                raise ValueError(f"Unknown energy_type: {energy_type}")
             self.energy_weight = energy_weight
     
     def forward(self, x: torch.Tensor) -> Tuple[torch.Tensor, torch.Tensor]:
@@ -242,6 +256,33 @@ def train_epoch(
     return epoch_losses
 
 
+def initialize_topology_energy(model: AblationModel, train_loader: DataLoader, device: str):
+    """Initialize TopologyEnergy target adjacency from training data."""
+    if not (model.use_energy and model.energy_type == 'topology'):
+        return
+    
+    print("  Initializing TopologyEnergy target adjacency...")
+    
+    # Collect a subset of training data for target adjacency
+    # Use first few batches (up to 5000 samples) to keep memory manageable
+    X_samples = []
+    max_samples = 5000
+    n_collected = 0
+    
+    with torch.no_grad():
+        for data, _ in train_loader:
+            data = data.to(device)
+            x = data.view(data.size(0), -1)
+            X_samples.append(x)
+            n_collected += x.shape[0]
+            if n_collected >= max_samples:
+                break
+    
+    X_train = torch.cat(X_samples, dim=0)[:max_samples]
+    model.energy_fn.set_target_adjacency(X_train)
+    print(f"  Target adjacency set from {X_train.shape[0]} training samples")
+
+
 def train_model(
     config_name: str,
     model: AblationModel,
@@ -253,6 +294,9 @@ def train_model(
     ckpt_dir: Path,
 ) -> Dict[str, List[float]]:
     """Train model and track metrics."""
+    # Initialize TopologyEnergy if needed
+    initialize_topology_energy(model, train_loader, device)
+    
     optimizer = torch.optim.Adam(model.parameters(), lr=lr)
     
     history = {
