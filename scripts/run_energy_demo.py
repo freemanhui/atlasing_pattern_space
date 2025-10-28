@@ -1,7 +1,11 @@
-import argparse, os, numpy as np, torch, matplotlib.pyplot as plt
+import argparse
+import os
+import torch
+import matplotlib.pyplot as plt
 from aps.utils import toy_corpus, cooc_ppmi, svd_embed
 from aps.topology import TopologicalAutoencoder, TopoAEConfig
 from aps.energy import MemoryEnergy, MemoryEnergyConfig
+from aps.viz import EnergyLandscapeVisualizer
 
 def main():
     ap = argparse.ArgumentParser()
@@ -9,6 +13,7 @@ def main():
     ap.add_argument('--beta', type=float, default=5.0)
     ap.add_argument('--n-mem', type=int, default=6)
     ap.add_argument('--outdir', type=str, default='outputs')
+    ap.add_argument('--html', action='store_true', help='Generate interactive HTML visualization')
     args = ap.parse_args()
     os.makedirs(args.outdir, exist_ok=True)
 
@@ -26,8 +31,11 @@ def main():
     opt = torch.optim.Adam(mem.parameters(), lr=1e-2)
     for ep in range(200):
         loss = mem.loss(Z)
-        opt.zero_grad(); loss.backward(); opt.step()
+        opt.zero_grad()
+        loss.backward()
+        opt.step()
 
+    # Static matplotlib visualization
     E = mem.energy(Z).detach().numpy()
     Znp = Z.numpy()
     plt.figure(figsize=(6,6))
@@ -35,9 +43,22 @@ def main():
     plt.colorbar(sc, label='Energy')
     plt.title('Energy basins over 2D latent')
     plt.tight_layout()
-    path = os.path.join(args.outdir, 'energy_basins.png')
-    plt.savefig(path, dpi=150)
-    print(f'Saved {path}')
+    path_png = os.path.join(args.outdir, 'energy_basins.png')
+    plt.savefig(path_png, dpi=150)
+    print(f'Saved {path_png}')
+    
+    # Optional interactive HTML visualization
+    if args.html:
+        viz = EnergyLandscapeVisualizer(
+            energy_module=mem,
+            latent_dim=2,
+            resolution=100
+        )
+        landscape = viz.compute_landscape()
+        fig = viz.plot_heatmap(landscape)
+        path_html = os.path.join(args.outdir, 'energy_landscape.html')
+        fig.write_html(path_html)
+        print(f'Saved {path_html}')
 
 if __name__ == '__main__':
     main()

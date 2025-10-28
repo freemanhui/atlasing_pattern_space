@@ -19,6 +19,10 @@ Requires-Dist: gudhi>=3.9.0; extra == "topology"
 Provides-Extra: causality
 Requires-Dist: causal-learn>=0.1.3.9; extra == "causality"
 Requires-Dist: dowhy>=0.11.1; extra == "causality"
+Provides-Extra: visualization
+Requires-Dist: plotly>=5.0; extra == "visualization"
+Requires-Dist: scikit-learn>=1.0; extra == "visualization"
+Requires-Dist: ipywidgets>=8.0; extra == "visualization"
 Provides-Extra: dev
 Requires-Dist: pytest>=7.0; extra == "dev"
 Requires-Dist: ruff>=0.4.8; extra == "dev"

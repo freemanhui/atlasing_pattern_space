@@ -1,4 +1,5 @@
-import re, numpy as np
+import re
+import numpy as np
 
 def tokenize(s: str): return re.findall(r"[a-z']+", s.lower())
 
@@ -45,16 +46,21 @@ def cooc_ppmi(tokenized, window=2):
     for doc in tokenized:
         idxs = [w2i[w] for w in doc]
         for i, wi in enumerate(idxs):
-            s = max(0, i-window); e = min(len(idxs), i+window+1)
+            s = max(0, i-window)
+            e = min(len(idxs), i+window+1)
             for j in range(s, e):
-                if j==i: continue
+                if j==i:
+                    continue
                 wj = idxs[j]
-                C[wi, wj] += 1; C[wj, wi] += 1
+                C[wi, wj] += 1
+                C[wj, wi] += 1
     eps = 1e-8
     row = C.sum(axis=1, keepdims=True)+eps
     col = C.sum(axis=0, keepdims=True)+eps
     tot = C.sum()+eps
-    p_ij = C/tot; p_i = row/tot; p_j = col/tot
+    p_ij = C/tot
+    p_i = row/tot
+    p_j = col/tot
     ppmi = np.maximum(0, np.log((p_ij+eps)/(p_i@p_j+eps)))
     return ppmi, vocab
 

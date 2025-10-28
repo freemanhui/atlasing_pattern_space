@@ -28,15 +28,21 @@ causality = [
     "causal-learn>=0.1.3.9",
     "dowhy>=0.11.1",
 ]
+visualization = [
+    "plotly>=5.0",
+    "scikit-learn>=1.0",
+    "ipywidgets>=8.0"
+]
 dev = [
     "pytest>=7.0",
     "ruff>=0.4.8",
-    "jupyter>=1.0.0"
+    "jupyter>=1.0.0",
+    "plotly>=5.0"
 ]
 
 [tool.setuptools]
 package-dir = {"" = "src"}
-packages = ["aps", "aps.topology", "aps.causality", "aps.energy", "aps.metrics", "aps.utils"]
+packages = ["aps", "aps.topology", "aps.causality", "aps.energy", "aps.metrics", "aps.utils", "aps.viz", "aps.viz.backends"]
 
 [project.scripts]
 aps = "aps_cli:main"
