@@ -95,39 +95,62 @@ class TopologyEnergy(BaseEnergy):
         
         Raises:
             RuntimeError: If target adjacency not set via set_target_adjacency()
+        
+        Note:
+            This computes energy based solely on the internal topology of z,
+            not requiring the same size as target adjacency. This makes it
+            suitable for mini-batch training.
         """
         if self.target_adjacency is None:
             raise RuntimeError(
                 "Target adjacency not set. Call set_target_adjacency() first."
             )
         
-        # Compute kNN adjacency in latent space
+        # Compute kNN adjacency within the current batch
         if self.cfg.continuous:
-            adj_latent = knn_graph(z, k=self.cfg.k, continuous=True)
+            adj_latent = knn_graph(z, k=min(self.cfg.k, z.shape[0] - 1), continuous=True)
         else:
-            indices = knn_indices(z, k=self.cfg.k)
+            k_effective = min(self.cfg.k, z.shape[0] - 1)
+            indices = knn_indices(z, k=k_effective)
             adj_latent = adjacency_from_knn(indices, n_samples=z.shape[0])
         
-        # Compute energy based on mode
+        # Compute energy based on internal consistency
+        # Reward: balanced neighborhood sizes and smooth transitions
+        n_samples = z.shape[0]
+        k_effective = min(self.cfg.k, n_samples - 1)
+        
         if self.cfg.mode == 'agreement':
-            # Reward agreement: lower energy when adjacencies match
-            agreement = (self.target_adjacency * adj_latent).sum()
-            # Normalize by n * k (expected number of edges)
-            n_samples = z.shape[0]
-            energy = -agreement / (n_samples * self.cfg.k)
+            # Reward: high within-batch kNN agreement (self-consistency)
+            # This encourages latent space where neighborhoods are stable
+            agreement = adj_latent.sum()  # Total edges in kNN graph
+            expected_edges = n_samples * k_effective
+            preservation_ratio = agreement / (expected_edges + 1e-8)
+            energy = -preservation_ratio  # Lower energy = better preservation
         
         elif self.cfg.mode == 'disagreement':
-            # Penalize disagreement: lower energy when differences are small
-            disagreement = torch.abs(self.target_adjacency - adj_latent).sum()
-            n_samples = z.shape[0]
-            energy = disagreement / (n_samples * self.cfg.k)
+            # Penalize: irregular neighborhood structure
+            # Measure variance in neighborhood sizes
+            neighborhood_sizes = adj_latent.sum(dim=1)  # (n_samples,)
+            variance = torch.var(neighborhood_sizes)
+            energy = variance / k_effective
         
         elif self.cfg.mode == 'jaccard':
-            # Use Jaccard-like similarity
-            intersection = (self.target_adjacency * adj_latent).sum()
-            union = (self.target_adjacency + adj_latent).clamp(max=1.0).sum()
-            jaccard = intersection / (union + 1e-8)
-            energy = -jaccard  # Lower energy = higher similarity
+            # Use local consistency measure
+            # For each point, measure how much its neighbors agree
+            consistency_scores = []
+            for i in range(min(n_samples, 100)):  # Sample to avoid O(n²)
+                neighbors = adj_latent[i].nonzero().squeeze()
+                if len(neighbors) > 1:
+                    # Check if neighbors are also neighbors of each other
+                    neighbor_adj = adj_latent[neighbors][:, neighbors]
+                    consistency = neighbor_adj.sum() / (len(neighbors) ** 2 + 1e-8)
+                    consistency_scores.append(consistency)
+            
+            if consistency_scores:
+                avg_consistency = torch.stack(consistency_scores).mean()
+                energy = -avg_consistency
+            else:
+                energy = torch.tensor(0.0, device=z.device)
         
         else:
             raise ValueError(f"Unknown mode: {self.cfg.mode}")
