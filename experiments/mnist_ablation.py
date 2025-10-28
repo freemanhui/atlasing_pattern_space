@@ -375,13 +375,32 @@ def run_ablation_study(
         test_data_tensor = test_loader.dataset.data.float() / 255.0
         test_data_flat = test_data_tensor.view(-1, 784).numpy()
         
-        metrics = evaluate_model_comprehensive(
-            model.encoder,
-            test_data_flat,
-            labels_array,
-            device=device,
-            k=15,
+        # Compute reconstruction error
+        recon_list = []
+        with torch.no_grad():
+            for data, _ in test_loader:
+                data = data.to(device)
+                x = data.view(data.size(0), -1)
+                x_recon, _ = model(x)
+                recon_list.append(x_recon.cpu().numpy())
+        reconstructions = np.vstack(recon_list)
+        
+        # Calculate individual metrics
+        from utils.metrics import (
+            trustworthiness, continuity, knn_preservation,
+            clustering_metrics, reconstruction_error
         )
+        
+        metrics = {
+            "reconstruction_error": reconstruction_error(test_data_flat, reconstructions),
+            "trustworthiness": trustworthiness(test_data_flat, embeddings, k=15),
+            "continuity": continuity(test_data_flat, embeddings, k=15),
+            "knn_preservation": knn_preservation(test_data_flat, embeddings, k=15),
+        }
+        
+        # Add clustering metrics
+        cluster_metrics = clustering_metrics(embeddings, labels_array)
+        metrics.update(cluster_metrics)
         
         # Store results
         all_results[config_name] = {
