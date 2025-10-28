@@ -33,10 +33,8 @@ from aps.topology import KNNTopoLoss
 from aps.causality import HSICLoss
 from aps.energy import MemoryEnergy, MemoryEnergyConfig
 from utils.metrics import (
-    knn_preservation,
-    trustworthiness,
-    continuity,
-    clustering_metrics,
+    compute_topology_metrics,
+    compute_clustering_metrics,
 )
 
 
@@ -273,12 +271,10 @@ def evaluate_ood(
     recon_error = np.mean((ood_data - reconstructions) ** 2)
     
     # Topology metrics (compare to original space structure)
-    trust = trustworthiness(original_data, embeddings, k=k)
-    cont = continuity(original_data, embeddings, k=k)
-    knn_pres = knn_preservation(original_data, embeddings, k=k)
+    topo_metrics = compute_topology_metrics(original_data, embeddings, k=k)
     
     # Clustering metrics
-    clustering = clustering_metrics(embeddings, labels)
+    clustering = compute_clustering_metrics(embeddings, labels)
     
     # kNN accuracy in latent space
     # Use first 5000 samples for training, rest for testing
@@ -292,9 +288,9 @@ def evaluate_ood(
     
     return {
         "reconstruction_error": float(recon_error),
-        "trustworthiness": float(trust),
-        "continuity": float(cont),
-        "knn_preservation": float(knn_pres),
+        "trustworthiness": float(topo_metrics["trustworthiness"]),
+        "continuity": float(topo_metrics["continuity"]),
+        "knn_preservation": float(topo_metrics["knn_preservation"]),
         "ari": float(clustering["ari"]),
         "nmi": float(clustering["nmi"]),
         "silhouette": float(clustering["silhouette"]),
