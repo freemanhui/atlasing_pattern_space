@@ -9,6 +9,16 @@ __pycache__/
 outputs/
 .codex/
 
+# Data caches and large files
+data/ag_news_cache/
+data/MNIST/
+data/FashionMNIST/
+*.pkl
+*.pt
+*.pth
+*.h5
+*.hdf5
+
 # LaTeX auxiliary files
 *.aux
 *.log
