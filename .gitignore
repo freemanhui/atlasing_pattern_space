@@ -11,6 +11,7 @@ outputs/
 
 # Paper and manuscript files
 paper/
+docs/
 
 # Data caches and large files
 data/ag_news_cache/
