@@ -19,6 +19,19 @@ REPO_CLEANUP_SUMMARY.md
 cleanup_repo.sh
 specs/
 
+# Experiment artifacts and results
+experiments/results/
+experiments/COMPLETE_SUMMARY.md
+experiments/FINAL_RESULTS.md
+experiments/PROGRESS_SUMMARY.md
+experiments/STATUS.md
+experiments/notebooks/
+
+# Build artifacts
+*.egg-info/
+dist/
+build/
+
 # Data caches and large files
 data/ag_news_cache/
 data/MNIST/
