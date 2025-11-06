@@ -232,10 +232,10 @@ atlasing_pattern_space/
 If you use this code or find our results useful, please cite:
 
 ```bibtex
-@article{hui2024boundary,
+@article{hui2025boundary,
   title={When Does Causal Regularization Help? A Systematic Study of Boundary Conditions in Spurious Correlation Learning},
   author={Hui, Freeman},
-  year={2024},
+  year={2025},
   note={arXiv preprint}
 }
 ```
