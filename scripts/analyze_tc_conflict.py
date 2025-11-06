@@ -85,10 +85,7 @@ def plot_pareto_frontier(df, output_dir):
 
 def plot_heatmaps(df, output_dir):
     """Plot heatmaps for key metrics across lambda_T and lambda_C."""
-    # Create pivot tables
-    lambda_T_vals = sorted(df['lambda_T'].unique())
-    lambda_C_vals = sorted(df['lambda_C'].unique())
-    
+    # Create pivot tables for heatmaps
     metrics = [
         ('causal_acc', 'Causal Accuracy'),
         ('topo_preservation', 'Topology Preservation'),

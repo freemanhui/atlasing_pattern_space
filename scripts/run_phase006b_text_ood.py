@@ -128,7 +128,7 @@ def train_epoch(
         # Get inputs
         x = batch['embedding'].to(device)  # [B, 768]
         y = batch['sentiment'].to(device)  # [B]
-        domain_id = batch['domain_id'].to(device) if use_domain_labels else None
+        _ = batch['domain_id'].to(device) if use_domain_labels else None  # Domain ID (for future IRM)
         
         # Forward pass through encoder
         z, x_recon = encoder(x)

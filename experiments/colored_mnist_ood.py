@@ -125,7 +125,7 @@ def train_aps_causal(loaders, device='cpu', epochs=20, lambda_C=1.0, lr=1e-3):
             images = batch['image'].to(device).flatten(1)
             labels = batch['label'].to(device)
             colors = batch['color'].to(device).float().unsqueeze(1)
-            envs = batch['environment'].to(device)
+            _ = batch['environment'].to(device)  # Environment ID (unused in this simple version)
             
             # Forward pass through APS
             z = model.encode(images)

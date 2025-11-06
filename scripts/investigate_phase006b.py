@@ -258,7 +258,7 @@ def main():
     analyze_prediction_patterns()
     analyze_loss_components()
     create_diagnostic_plots()
-    insights = generate_insights()
+    _ = generate_insights()
     
     # Generate report
     print("\n" + "="*80)

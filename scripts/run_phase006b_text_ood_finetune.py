@@ -237,7 +237,7 @@ def train_epoch(
         input_ids = batch['input_ids'].to(device)
         attention_mask = batch['attention_mask'].to(device)
         sentiment = batch['sentiment'].to(device)
-        topic_id = batch['topic_id'].to(device)
+        _ = batch['topic_id'].to(device)  # Topic ID (unused but loaded)
         
         # Forward
         outputs = model(input_ids, attention_mask)
@@ -426,7 +426,6 @@ def run_experiment(config: ExperimentConfig):
     ], weight_decay=config.weight_decay)
     
     # Scheduler
-    total_steps = len(train_loader) * config.epochs
     scheduler = torch.optim.lr_scheduler.LinearLR(
         optimizer,
         start_factor=0.1,

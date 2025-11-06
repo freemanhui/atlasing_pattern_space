@@ -312,7 +312,7 @@ def main():
     
     if not args.eval_only:
         print("\nTraining model...")
-        trainer = train_model(
+        _ = train_model(
             model,
             train_loader,
             val_loader,

@@ -82,7 +82,7 @@ def visualize_energies(X, y, energy_fn, title, ax, is_topology_energy=False):
     plt.colorbar(contour, ax=ax, label='Energy')
     
     # Plot data points
-    scatter = ax.scatter(
+    _ = ax.scatter(
         X[:, 0], X[:, 1], 
         c=y, cmap='coolwarm', 
         edgecolors='black', s=50, alpha=0.8

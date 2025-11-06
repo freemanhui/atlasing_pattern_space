@@ -251,7 +251,6 @@ def plot_ood_robustness(ood_results: Dict, output_dir: Path):
     """Create OOD robustness visualization."""
     
     configs = ["baseline", "t_c_e"]  # Compare baseline vs full
-    scenarios = ["rotation", "noise"]
     
     fig, axes = plt.subplots(1, 2, figsize=(12, 5))
     

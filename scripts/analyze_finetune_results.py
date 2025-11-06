@@ -108,11 +108,6 @@ def plot_accuracy_comparison(df, output_dir):
         ax.legend()
         ax.set_ylim([0, 1.05])
         
-        # Add value labels on bars
-        for bar in bars1:
-            height = bar.get_height()
-            ax.text(bar.get_x() + bar.get_width()/2., height,
-                   f'{height:.3f}', ha='center', va='bottom', fontsize=9)
     
     plt.tight_layout()
     plt.savefig(output_dir / 'accuracy_comparison.png', dpi=300, bbox_inches='tight')
@@ -136,12 +131,12 @@ def plot_component_ablation(df, output_dir):
     width = 0.25
     
     # Plot three metrics side by side
-    bars1 = ax.bar(x_pos - width, finetune_data['Train Acc'], width, 
-                   label='Train Acc', alpha=0.8, color='#2ecc71')
-    bars2 = ax.bar(x_pos, finetune_data['Val Acc'], width, 
-                   label='Val Acc', alpha=0.8, color='#3498db')
-    bars3 = ax.bar(x_pos + width, finetune_data['OOD Acc'], width, 
-                   label='OOD Acc', alpha=0.8, color='#e74c3c')
+    _ = ax.bar(x_pos - width, finetune_data['Train Acc'], width, 
+               label='Train Acc', alpha=0.8, color='#2ecc71')
+    _ = ax.bar(x_pos, finetune_data['Val Acc'], width, 
+               label='Val Acc', alpha=0.8, color='#3498db')
+    _ = ax.bar(x_pos + width, finetune_data['OOD Acc'], width, 
+               label='OOD Acc', alpha=0.8, color='#e74c3c')
     
     ax.set_ylabel('Accuracy')
     ax.set_title('Component Ablation Study (Fine-Tuned BERT)')
