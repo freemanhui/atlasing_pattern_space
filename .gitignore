@@ -17,6 +17,7 @@ docs/
 WARP.md
 REPO_CLEANUP_SUMMARY.md
 cleanup_repo.sh
+specs/
 
 # Data caches and large files
 data/ag_news_cache/
