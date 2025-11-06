@@ -13,6 +13,11 @@ outputs/
 paper/
 docs/
 
+# Internal documentation and scripts
+WARP.md
+REPO_CLEANUP_SUMMARY.md
+cleanup_repo.sh
+
 # Data caches and large files
 data/ag_news_cache/
 data/MNIST/

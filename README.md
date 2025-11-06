@@ -244,9 +244,8 @@ If you use this code or find our results useful, please cite:
 
 ## 📚 Further Reading
 
-### Documentation
-- **Development guide**: [`WARP.md`](WARP.md)
 - **Experiment results**: `outputs/`
+- **Code documentation**: See docstrings in `src/aps/`
 
 ---
 
