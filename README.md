@@ -242,13 +242,6 @@ If you use this code or find our results useful, please cite:
 
 ---
 
-## 📚 Further Reading
-
-- **Experiment results**: `outputs/`
-- **Code documentation**: See docstrings in `src/aps/`
-
----
-
 ## 📧 Contact
 
 - **Author**: Freeman Hui
