@@ -79,7 +79,7 @@ These results provide important scientific insights about \textbf{when domain ad
     \item Target task benefits from \textbf{geometric structure} (e.g., semantic similarity)
 \end{itemize}
 
-\textbf{Energy as Universal Regularizer:} The TopologyEnergy component provided consistent benefits \emph{regardless of shift strength}, acting as an effective regularizer against overfitting. This suggests energy-based constraints have value beyond domain adaptation—they fundamentally improve generalization.
+\textbf{Energy as Training Regularizer:} The TopologyEnergy component effectively prevents overfitting \emph{regardless of shift strength}. However, its OOD accuracy improvements are negligible (+0.11pp, likely statistical noise), suggesting energy-based constraints primarily serve as capacity control mechanisms rather than direct OOD generalization tools.
 
 \textbf{Honest Framing:} Rather than viewing null results as failures, these experiments establish \textbf{boundary conditions} for when complex adaptation mechanisms are warranted. In weak-shift scenarios, simple regularization (energy) suffices; strong-shift scenarios (e.g., ColoredMNIST with 90\%+ spurious correlation) would better demonstrate topology and causality benefits.
 
@@ -99,4 +99,4 @@ Importantly, we did \textbf{not} test MemoryEnergy in this NLP setting after obs
     \item Risk representation collapse similar to MNIST (ARI↓92\%)
 \end{itemize}
 
-TopologyEnergy's success on both MNIST (902\% ARI improvement) and AG News (+0.11pp OOD accuracy) validates its data-driven design: energy wells emerge from neighborhood structure rather than arbitrary memory patterns, making it robust across modalities.
+TopologyEnergy's effectiveness in preventing representation collapse on MNIST (902\% ARI improvement) while maintaining training stability on AG News validates its data-driven design: energy wells emerge from neighborhood structure rather than arbitrary memory patterns, making it robust across modalities.

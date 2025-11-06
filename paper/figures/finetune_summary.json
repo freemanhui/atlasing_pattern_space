@@ -1,0 +1,8 @@
+{
+  "frozen_baseline_ood": 0.752,
+  "best_finetune_model": "Baseline",
+  "best_finetune_ood": 0.0,
+  "improvement_over_frozen": -0.752,
+  "baseline_finetune_ood": 0.0,
+  "mean_aps_ood": 0.0
+}

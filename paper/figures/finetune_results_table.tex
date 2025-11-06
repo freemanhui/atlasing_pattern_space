@@ -1,0 +1,18 @@
+\begin{table}[t]
+\centering
+\caption{AG News Fine-Tuning Results: Component Ablation Study}
+\label{tab:finetune_results}
+\begin{tabular}{lccc}
+\toprule
+Model & Train Acc & Val Acc & OOD Test Acc \\
+\midrule
+Baseline (Frozen) & 0.985 & 0.965 & 0.752 \\
+\midrule
+Baseline & 0.000 & 0.000 & \textbf{0.000} \\
+APS-T & 0.000 & 0.000 & \textbf{0.000} \\
+APS-C & 0.000 & 0.000 & \textbf{0.000} \\
+APS-TC & 0.000 & 0.000 & \textbf{0.000} \\
+APS-full & 0.000 & 0.000 & \textbf{0.000} \\
+\bottomrule
+\end{tabular}
+\end{table}

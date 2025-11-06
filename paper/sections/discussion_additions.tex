@@ -1,0 +1,207 @@
+\subsection{When Does Topology Preservation Matter?}
+
+Our experiments reveal that topology preservation is \textbf{not universally beneficial} but rather exhibits strong domain-specificity. This negative finding is scientifically valuable: it establishes clear boundary conditions for when geometric regularization helps.
+
+\textbf{Success Case (MNIST):} In Section~\ref{sec:experiments}, topology preservation significantly improved kNN fidelity in the latent space. Working with 784-dimensional pixel representations, the topology loss successfully maintained local neighborhood structure, leading to improved clustering and interpretability.
+
+\textbf{Failure Case (T-C Conflict):} In Section~\ref{sec:tc_conflict}, topology preservation remained at 0\% across all $\lambda_T$ values (including $\lambda_T=5.0$) on a synthetic 2D dataset. This complete failure to engage indicates fundamental incompatibility with the data characteristics.
+
+\textbf{Why the Difference?} Post-hoc analysis suggests topology preservation requires:
+
+\begin{enumerate}
+    \item \textbf{High-dimensional embeddings}: MNIST's 784-dimensional pixel space has rich distance structure; 2D synthetic features lack sufficient complexity for meaningful kNN relationships.
+    
+    \item \textbf{Meaningful distance metrics}: In MNIST, pixel-space $\ell^2$ distance correlates with perceptual similarity. In the synthetic dataset, concatenated shape+color features create a distance space where one-hot color encoding dominates, obscuring shape-based topology.
+    
+    \item \textbf{Sufficient batch size}: With batch size 64 and k=8, only 12.5\% of samples participate in kNN graphs. MNIST benefits from larger effective neighborhoods due to its dataset size and natural clustering structure.
+    
+    \item \textbf{Task alignment}: When input-space topology relates to output labels (e.g., similar-looking digits have same labels), preserving it helps. When input topology is defined by spurious features (e.g., color in synthetic data), preservation may be counterproductive.
+\end{enumerate}
+
+\textbf{Decision Criteria:} Practitioners should use topology preservation when:
+\begin{itemize}
+    \item Working with \textbf{high-dimensional data} (images, spectrograms, sensor arrays)
+    \item Input space has \textbf{meaningful geometric structure} (e.g., pixel similarity, acoustic similarity)
+    \item The task benefits from \textbf{local smoothness} assumptions (nearby inputs $\rightarrow$ similar outputs)
+    \item Computational resources allow \textbf{large batches} (>128) or full-dataset kNN computation
+\end{itemize}
+
+\textbf{Skip topology preservation when:}
+\begin{itemize}
+    \item Features are \textbf{low-dimensional} ($<$10D) or already heavily preprocessed
+    \item Working with \textbf{discrete/categorical} features where Euclidean distance is meaningless
+    \item Input topology is \textbf{dominated by spurious correlations}
+    \item Operating under \textbf{small batch constraints} ($<$64)
+\end{itemize}
+
+This domain-specificity lesson generalizes beyond topology: \emph{no regularization technique is universally beneficial}. The effectiveness of any constraint depends on alignment between the regularizer's inductive bias and the true data-generating process.
+
+\subsection{Practical Guidelines for Practitioners}\label{sec:practical_guidelines}
+
+Based on our systematic experiments across ColoredMNIST, MNIST, AG News, and synthetic domains, we provide actionable guidelines for applying APS components:
+
+\subsubsection{Architectural Choice First}
+
+\textbf{Primary Decision:} Choose reconstructive architecture (autoencoder) over pure classification when possible.
+
+\textbf{Why:} Our ColoredMNIST results demonstrate that reconstruction provides powerful implicit causal bias, achieving 82-86\% accuracy with 99\% spurious correlation \textbf{before any explicit regularization}. This architectural bias often obviates the need for complex causal constraints.
+
+\textbf{When to deviate:} Pure classification architectures may be necessary when:
+\begin{itemize}
+    \item Computational budget is extremely limited (reconstruction doubles parameters)
+    \item Task requires discriminative fine-tuning of pre-trained models (e.g., BERT)
+    \item Input reconstruction is ill-defined (e.g., graphs, sets, variable-length sequences)
+\end{itemize}
+
+In these cases, explicit causal regularization becomes more critical.
+
+\subsubsection{Component Selection Matrix}
+
+\begin{table}[h]
+\centering
+\caption{When to use each APS component based on data characteristics and task requirements.}
+\label{tab:component_guidelines}
+\small
+\begin{tabular}{p{2cm}p{4.5cm}p{4.5cm}p{2cm}}
+\toprule
+\textbf{Component} & \textbf{Use When} & \textbf{Skip When} & \textbf{Typical $\lambda$} \\
+\midrule
+\textbf{Topology (T)} & High-dim data (images, audio); meaningful input distances; smooth label functions & Low-dim features ($<$10D); discrete/categorical data; spurious topology & 0.5--1.0 \\
+\midrule
+\textbf{Causality (C)} & Multiple domains/environments; strong spurious correlations ($>$90\%); trainable representations & Single domain; weak correlations ($<$80\%); frozen embeddings & 0.5--1.0 \\
+\midrule
+\textbf{Energy (E)} & Always beneficial as \textbf{training regularizer}; prevents overfitting regardless of domain & Only skip if training stability is already excellent & 0.01--0.1 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsubsection{Hyperparameter Selection}
+
+\textbf{Lambda weights ($\lambda_T$, $\lambda_C$, $\lambda_E$):}
+\begin{itemize}
+    \item \textbf{Start with}: $\lambda_T=1.0$, $\lambda_C=1.0$, $\lambda_E=0.1$
+    \item \textbf{For classification tasks}: Reduce all by 10--100× to prevent dominating task loss
+    \item \textbf{Monitor}: Individual loss components should be same order of magnitude as task loss
+    \item \textbf{Red flag}: If total loss is negative or any component is $>$10× task loss, reduce lambdas
+\end{itemize}
+
+\textbf{Topology k parameter:}
+\begin{itemize}
+    \item \textbf{Rule of thumb}: $k = \sqrt{\text{batch\_size}}$ to $\text{batch\_size}/8$
+    \item \textbf{MNIST-scale}: k=15 for batch\_size=256
+    \item \textbf{Smaller batches}: k=8 for batch\_size=64
+    \item \textbf{Never}: k $>$ batch\_size/4 (insufficient non-neighbors)
+\end{itemize}
+
+\textbf{Energy memory patterns ($n_{\text{mem}}$):}
+\begin{itemize}
+    \item \textbf{Use}: 2--4× number of classes for TopologyEnergy
+    \item \textbf{Avoid}: Memory-based energy functions (MemoryEnergy) due to catastrophic failure risk
+\end{itemize}
+
+\textbf{HSIC kernel width ($\sigma$):}
+\begin{itemize}
+    \item \textbf{Default}: 1.0 for normalized latent codes
+    \item \textbf{Tune}: Use median pairwise distance heuristic if default fails
+\end{itemize}
+
+\subsubsection{Validation Strategy}
+
+\textbf{How to know if components are helping:}
+
+\begin{enumerate}
+    \item \textbf{Ablation is mandatory}: Run Baseline, T-only, C-only, TC, Full configurations. Never trust single-configuration results.
+    
+    \item \textbf{Check component engagement}:
+    \begin{itemize}
+        \item Topology: Measure kNN preservation explicitly—should increase with $\lambda_T$
+        \item Causality: Measure correlation between latent codes and nuisance factors—should decrease with $\lambda_C$
+        \item Energy: Training loss should stabilize earlier; generalization gap should decrease
+    \end{itemize}
+    
+    \item \textbf{If components don't engage} (e.g., 0\% topology preservation):
+    \begin{itemize}
+        \item First check implementation bugs
+        \item Then consider domain mismatch (see Section~\ref{sec:tc_conflict})
+        \item Don't force it—skip that component for your domain
+    \end{itemize}
+    
+    \item \textbf{Marginal gains are OK}: Even 1-4pp improvements can be meaningful for high-stakes applications. But if gains are $<$1pp, question whether complexity is justified.
+\end{enumerate}
+
+\subsubsection{Common Pitfalls}
+
+\textbf{1. Loss imbalance in classification tasks:}
+\begin{itemize}
+    \item \textbf{Symptom}: Training accuracy stuck at random chance; total loss is negative
+    \item \textbf{Cause}: APS losses dominate classification loss
+    \item \textbf{Fix}: Reduce $\lambda$ weights by 10--100×; add loss component clipping
+\end{itemize}
+
+\textbf{2. Assuming universal benefits:}
+\begin{itemize}
+    \item \textbf{Symptom}: Component shows 0\% improvement across all settings
+    \item \textbf{Cause}: Domain mismatch (e.g., topology on low-dimensional data)
+    \item \textbf{Fix}: Validate component engagement; skip if incompatible with your data
+\end{itemize}
+
+\textbf{3. Frozen representations with causality:}
+\begin{itemize}
+    \item \textbf{Symptom}: Causality component has no effect
+    \item \textbf{Cause}: Gradient-based independence can't modify frozen embeddings
+    \item \textbf{Fix}: Enable fine-tuning or use trainable encoders
+\end{itemize}
+
+\textbf{4. Insufficient batch size for topology:}
+\begin{itemize}
+    \item \textbf{Symptom}: Topology loss is noisy; preservation doesn't improve
+    \item \textbf{Cause}: Too few samples for stable kNN graphs
+    \item \textbf{Fix}: Increase batch size or compute kNN on full dataset offline
+\end{itemize}
+
+\subsubsection{Decision Tree}
+
+\textbf{START: Do you have out-of-distribution (OOD) generalization concerns?}
+\begin{itemize}
+    \item \textbf{No} $\rightarrow$ Use standard architectures; APS likely unnecessary
+    \item \textbf{Yes} $\rightarrow$ Continue ↓
+\end{itemize}
+
+\textbf{Q1: What's the strength of spurious correlations?}
+\begin{itemize}
+    \item \textbf{Weak ($<$80\%)} $\rightarrow$ Standard training likely sufficient
+    \item \textbf{Medium (80--95\%)} $\rightarrow$ Use reconstructive architecture (implicit bias) + optional explicit regularization
+    \item \textbf{Strong ($>$95\%)} $\rightarrow$ Explicit causal regularization (C component) critical
+\end{itemize}
+
+\textbf{Q2: Are your representations trainable?}
+\begin{itemize}
+    \item \textbf{Yes (learning from raw inputs)} $\rightarrow$ Full APS applicable
+    \item \textbf{No (frozen pre-trained features)} $\rightarrow$ Skip causality (C); use topology (T) + energy (E) only
+\end{itemize}
+
+\textbf{Q3: Is your data high-dimensional with meaningful geometry?}
+\begin{itemize}
+    \item \textbf{Yes (images, audio, dense embeddings)} $\rightarrow$ Add topology (T)
+    \item \textbf{No (low-dim, discrete, sparse)} $\rightarrow$ Skip topology (T)
+\end{itemize}
+
+\textbf{Q4: Do you have overfitting issues?}
+\begin{itemize}
+    \item \textbf{Yes} $\rightarrow$ Add energy (E) with small $\lambda_E$ (0.01--0.1)
+    \item \textbf{No} $\rightarrow$ Energy optional but unlikely to hurt
+\end{itemize}
+
+\subsection{Summary of Boundary Conditions}
+
+Our systematic investigation establishes that causal learning success depends on:
+
+\begin{enumerate}
+    \item \textbf{Architectural bias} (primary): Reconstruction $\gg$ explicit regularization in magnitude of effect
+    \item \textbf{Spurious correlation strength}: Explicit methods critical only at $>$95\% correlation
+    \item \textbf{Domain shift magnitude}: Weak shifts ($<$5\%) show minimal benefit from T+C; strong shifts ($>$10\%) show clear benefits
+    \item \textbf{Representation learnability}: Frozen embeddings limit causality component effectiveness
+    \item \textbf{Data modality}: High-dimensional continuous data benefits from topology; low-dimensional discrete data does not
+\end{enumerate}
+
+These boundary conditions reframe causal learning from a universal solution to a \textbf{targeted intervention}: apply the right regularization at the right time, and start with architectural choice.

@@ -8,10 +8,13 @@ from .init import get_initializer
 class MemoryEnergyConfig:
     latent_dim: int = 2
     n_mem: int = 8
-    beta: float = 5.0   # sharpness
+    beta: float = 1.0   # sharpness (reduced from 5.0 for stability)
     alpha: float = 0.0  # L2 on z
     init_method: str = 'random'  # initialization strategy
     init_scale: float = 0.5  # for random init
+    normalize_z: bool = False  # normalize latent codes before energy computation
+    clip_dots: bool = True  # clip dot products to prevent overflow
+    max_dot: float = 10.0  # maximum dot product value
 
 class MemoryEnergy(BaseEnergy):
     """Memory-based log-sum-exp energy; lower near memory patterns => attractors."""
@@ -41,8 +44,32 @@ class MemoryEnergy(BaseEnergy):
         self.mem = nn.Parameter(patterns)
 
     def energy(self, z: torch.Tensor) -> torch.Tensor:
-        """Compute log-sum-exp energy."""
-        dots = z @ self.mem.t()       # (N, n_mem)
-        lse  = torch.logsumexp(self.cfg.beta * dots, dim=1)
-        e    = 0.5 * self.cfg.alpha * torch.sum(z**2, dim=1) - lse
+        """
+        Compute log-sum-exp energy with numerical stability improvements.
+        
+        E(z) = 0.5*α*||z||² - log(Σ exp(β·z·mᵢ))
+        
+        Lower energy near memory patterns creates attractor basins.
+        """
+        # Optional: normalize latent codes
+        if self.cfg.normalize_z:
+            z = torch.nn.functional.normalize(z, p=2, dim=1)
+        
+        # Compute dot products: (N, n_mem)
+        dots = z @ self.mem.t()
+        
+        # Optional: clip dots to prevent overflow in exp
+        if self.cfg.clip_dots:
+            dots = torch.clamp(dots, -self.cfg.max_dot, self.cfg.max_dot)
+        
+        # Log-sum-exp with numerical stability
+        # Note: pytorch's logsumexp already uses the max-trick for stability
+        lse = torch.logsumexp(self.cfg.beta * dots, dim=1)
+        
+        # L2 regularization term
+        l2_term = 0.5 * self.cfg.alpha * torch.sum(z**2, dim=1)
+        
+        # Total energy (lower near memory patterns)
+        e = l2_term - lse
+        
         return e

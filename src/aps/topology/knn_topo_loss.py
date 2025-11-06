@@ -4,6 +4,7 @@ import torch.nn as nn
 def knn_indices(arr: torch.Tensor, k: int) -> torch.Tensor:
     d = torch.cdist(arr, arr, p=2.0)
     d.fill_diagonal_(float('inf'))
+    k = min(k, arr.shape[0] - 1)  # Ensure k is not out of range
     idx = torch.topk(d, k=k, largest=False).indices  # (N,k)
     return idx
 

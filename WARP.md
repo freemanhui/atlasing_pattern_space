@@ -39,6 +39,12 @@ python scripts/run_aps_experiment.py --latent 10 --lambda-T 0.5 --lambda-E 0.1 -
 # With tensorboard logging
 python scripts/run_aps_experiment.py --experiment full --tensorboard --epochs 100
 
+# ColoredMNIST causal learning experiments (NEW)
+python scripts/run_colored_mnist.py --experiment all --epochs 50  # Run all ablations
+python scripts/run_colored_mnist.py --experiment aps-c --epochs 50  # Causality only
+python scripts/run_colored_mnist.py --experiment aps-full --epochs 50  # Full APS (T+C+E)
+python scripts/run_colored_mnist.py --experiment baseline --epochs 30  # No APS
+
 # Legacy demos (individual components)
 python scripts/run_topo_ae.py --latent 2 --epochs 100 --topo-weight 1.0
 python scripts/run_energy_demo.py
@@ -88,10 +94,17 @@ src/aps/
   - Loss: `L_total = L_recon + λ_T·L_topo + λ_C·L_hsic + λ_E·L_energy`
   - Modular MLP encoder/decoder with configurable hidden layers
   - Independent weight control for ablation studies
+- **`APSConvAutoencoder`**: Convolutional version for RGB images (ColoredMNIST)
+  - Conv2d encoder + ConvTranspose2d decoder
+  - Same unified APS loss structure
+  - Includes classifier head for digit recognition
 - **`APSConfig`**: Comprehensive configuration dataclass
   - Architecture params: `in_dim`, `latent_dim`, `hidden_dims`
   - Loss weights: `lambda_T`, `lambda_C`, `lambda_E`
   - Component-specific: `topo_k`, `hsic_sigma`, `n_mem`, `beta`, `alpha`
+- **`APSConvConfig`**: Configuration for convolutional models
+  - Image params: `in_channels`, `img_size`, `hidden_channels`
+  - Same loss weights and component params as APSConfig
 
 #### Training (`aps.training`)
 - **`Trainer`**: Unified training loop with progress tracking
@@ -133,12 +146,20 @@ The topology loss compares kNN adjacency matrices in original vs. latent space u
 - **`trustworthiness()`**: Measures if close neighbors in embedding were also close in original space
 - **`basin_depth()`**: Gap between mean and minimum energy (deeper = stronger attractors)
 - **`pointer_strength()`**: Metric for memory/pointer mechanisms (see `pointer_strength.py`)
+- **`color_label_correlation()`**: Measures if latent codes correlate with spurious (color) or causal (label) features
+- **`environment_invariance_score()`**: Measures prediction consistency across environments with different spurious correlations
+- **`spurious_feature_reliance()`**: Quantifies model's reliance on spurious vs causal features
+- **`compute_causal_metrics()`**: Comprehensive causal evaluation suite for ColoredMNIST
 
 #### Utils (`aps.utils`)
 - **`toy_corpus()`**: Generates small synthetic text data for testing
 - **`cooc_ppmi()`**: Computes PPMI (Positive Pointwise Mutual Information) co-occurrence matrix from tokens
 - **`svd_embed()`**: Creates SVD-based embeddings from co-occurrence matrix
 - **`scatter_labels()`**: Visualization helper for 2D embeddings with word labels
+- **`ColoredMNIST`**: Dataset where digit color is spuriously correlated with labels
+  - Configurable correlation rates per environment (training vs test)
+  - RGB colored digits for testing causal invariance learning
+- **`create_colored_mnist_envs()`**: Creates multiple training environments with different color-label correlations
 
 ### Workflow Pattern
 

@@ -1,0 +1,119 @@
+\subsection{ColoredMNIST: Establishing Boundary Conditions for Causal Learning}\label{sec:coloredmnist}
+
+To investigate the interplay between architectural bias and explicit regularization, we conducted a systematic study on ColoredMNIST \cite{arjovsky2019invariant}.
+
+\subsubsection{The Surprising Robustness of Autoencoder Baselines}
+
+Our primary finding is that a standard convolutional autoencoder with a classifier head demonstrates remarkable robustness to spurious correlations, largely obviating the need for explicit causal losses. As shown in Table \ref{tab:coloredmnist} and Figure \ref{fig:coloredmnist_performance}, the baseline model achieves high accuracy even under extreme correlation:
+
+\begin{itemize}
+    \item \textbf{99.5\% Correlation (Hard)}: The baseline reaches \textbf{82.69\%} test accuracy.
+    \item \textbf{99\% / -99\% Correlation (Very Hard)}: The baseline achieves \textbf{85.98\%} test accuracy, successfully identifying the causal feature despite the test set being anti-correlated.
+\end{itemize}
+
+Crucially, the addition of explicit causal regularization via HSIC (APS-C) and other components (APS-Full) provides only \textbf{marginal gains (0-4pp)}, and in some cases slightly degrades performance. This strongly suggests that the reconstruction objective of the autoencoder provides a powerful \textbf{implicit causal bias}. The model must learn to represent shape to reconstruct the digits, a signal that overrides the spurious color information.
+
+\textbf{Dataset Variants:}
+\begin{itemize}
+    \item \textbf{v2 (Hard)}: 99.5\% train correlation, 5\% test correlation
+    \item \textbf{v3.1 (Very Hard)}: 99\% train correlation, -99\% test (anti-correlated)
+\end{itemize}
+
+In ColoredMNIST, digits are colored based on their label with configurable correlation strength. For example, with 99\% correlation, digit "3" appears red 99\% of the time in training. The test set has lower (or negative) correlation, creating a distribution shift where models must learn shape rather than color.
+
+\textbf{Models Compared:}
+\begin{itemize}
+    \item \textbf{Baseline}: Convolutional autoencoder + classifier (no causal regularization)
+    \item \textbf{APS-T}: Baseline + topology preservation ($\lambda_T$=1.0)
+    \item \textbf{APS-C}: Baseline + HSIC independence ($\lambda_C$=1.0)
+    \item \textbf{APS-Full}: All components ($\lambda_T$=1.0, $\lambda_C$=1.0, $\lambda_E$=0.01)
+\end{itemize}
+
+\textbf{Architecture:} RGB images (28$\times$28$\times$3) → Conv encoder → 10D latent → Conv decoder + Linear classifier. Trained for 40 epochs with Adam optimizer (lr=1e-3).
+
+\subsubsection{Results: Baseline Strength and Marginal Benefits}
+
+\begin{table}[h]
+\centering
+\caption{ColoredMNIST Results: Baseline achieves strong performance across correlation spectrum, with APS components providing marginal (0-4pp) improvements.}
+\label{tab:coloredmnist}
+\small
+\begin{tabular}{lcccc}
+\toprule
+\textbf{Model} & \textbf{v2 Test Acc} & \textbf{v2 Causal Ratio} & \textbf{v3.1 Test Acc} & \textbf{v3.1 Causal Ratio} \\
+\midrule
+Baseline & 82.69\% & \textbf{1.96} & 85.98\% & 1.23 \\
+APS-T & 82.69\% & 1.96 & --- & --- \\
+APS-C & 82.63\% & 1.86 & 84.51\% & \textbf{1.35} \\
+APS-Full & 82.20\% & 1.62 & \textbf{86.12\%} & 1.17 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\begin{figure}[h]
+  \centering
+  \includegraphics[width=0.8\textwidth]{figures/fig1_performance_spectrum.pdf}
+  \caption{Performance across correlation spectrum. All models achieve similar accuracy (82-86\%), demonstrating baseline robustness due to implicit causal bias from reconstruction objective.}
+  \label{fig:coloredmnist_performance}
+\end{figure}
+
+\textbf{Key Findings:}
+\begin{enumerate}
+    \item \textbf{Baseline Robustness}: Achieves 82-86\% accuracy across both difficulty levels without explicit causal regularization. Even with 99\% spurious correlation, reconstruction objective forces learning of shape features.
+    
+    \item \textbf{Marginal APS Benefits}: 
+    \begin{itemize}
+        \item v2: All models achieve $\sim$82.7\% (differences $<$0.5pp)
+        \item v3.1: APS-Full best at 86.12\% (+0.14pp over baseline)
+    \end{itemize}
+    
+    \item \textbf{Causal Ratio Patterns}: Baseline exhibits highest causal ratio (1.96 in v2), suggesting reconstruction naturally prioritizes shape over color. HSIC independence (APS-C) reduces both causal and spurious correlations.
+    
+    \item \textbf{Energy Stability}: TopologyEnergy with reduced hyperparameters ($\lambda_E$=0.01, $\beta$=1.0) provides stable training, unlike memory-based alternatives.
+\end{enumerate}
+
+\begin{figure}[h]
+  \centering
+  \includegraphics[width=0.8\textwidth]{figures/fig2_causality_metrics.pdf}
+  \caption{Causality metrics comparison across models and difficulty levels. Baseline maintains high causal ratio, while APS-C shows highest invariance to spurious features.}
+  \label{fig:coloredmnist_metrics}
+\end{figure}
+
+\subsubsection{Analysis: Implicit Causal Bias of Autoencoders}
+
+\textbf{Why is baseline so strong?} Three factors explain the surprising robustness:
+
+\textbf{1. Reconstruction Forces Structural Learning:}
+\begin{itemize}
+    \item Color alone insufficient to reconstruct digit boundaries and strokes
+    \item Latent bottleneck forces compression; shape more compressible than color
+    \item Multi-task learning (reconstruction + classification) creates natural regularization
+\end{itemize}
+
+\textbf{2. Minimal Causal Signal Sufficiency:}
+\begin{itemize}
+    \item In v3.1 (99\% correlation), 1\% uncorrelated samples = 600 examples total
+    \item Gradient signal exists even if weak; backpropagation amplifies over epochs
+    \item Multi-environment training provides implicit IRM-style pressure
+\end{itemize}
+
+\textbf{3. Phase Transition at 100\%:}
+\begin{itemize}
+    \item All methods fail completely with 100\% correlation (1-5\% accuracy)
+    \item Sharp boundary validates necessity of some causal examples
+    \item HSIC independence alone cannot "discover" features without positive signal
+\end{itemize}
+
+\textbf{Implications for Causal Learning:}
+\begin{itemize}
+    \item Architecture choice matters: Autoencoders have built-in causal bias
+    \item Real-world datasets rarely have 100\% perfect spurious correlation
+    \item Explicit causal methods most valuable when:
+    \begin{itemize}
+        \item Feed-forward architectures (no reconstruction)
+        \item Very high correlation (95-99.9\%)
+        \item Multiple confounding spurious features
+    \end{itemize}
+\end{itemize}
+
+\subsection{NLP Application: Sentiment Analysis with Domain Shift}

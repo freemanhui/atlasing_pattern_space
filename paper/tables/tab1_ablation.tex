@@ -1,0 +1,25 @@
+\begin{table}[t]
+\centering
+\caption{Performance across correlation spectrum. Bold indicates best in column.}
+\label{tab:ablation}
+\small
+\begin{tabular}{lccccc}
+\toprule
+& & \multicolumn{4}{c}{\textbf{Version}} \\
+\cmidrule{3-6}
+\textbf{Model} & \textbf{Metric} & Hard (99.5\%) & Very Hard (99\%/-99\%) \\
+\midrule
+Baseline & Acc (\%) & 82.69 & 85.98 \\
+ & Causal Ratio & 1.96 & 1.23 \\
+\cmidrule{2-6}
+$+$ Topology & Acc (\%) & 82.69 & 84.57 \\
+ & Causal Ratio & 1.96 & 1.21 \\
+\cmidrule{2-6}
+$+$ Causality & Acc (\%) & 82.63 & 84.51 \\
+ & Causal Ratio & 1.86 & 1.35 \\
+\cmidrule{2-6}
+Full APS & Acc (\%) & 82.20 & 86.12 \\
+ & Causal Ratio & 1.62 & 1.17 \\
+\bottomrule
+\end{tabular}
+\end{table}

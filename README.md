@@ -1,401 +1,277 @@
-# Atlasing Pattern Space (APS)
+# When Does Causal Regularization Help? 
+
+**A Systematic Study of Boundary Conditions in Spurious Correlation Learning**
 
 [![Paper](https://img.shields.io/badge/Paper-PDF-red)](paper/paper_merged.pdf)
 [![Code](https://img.shields.io/badge/Code-Python-blue)](src/aps/)
+[![License](https://img.shields.io/badge/License-MIT-green)](LICENSE)
 
-## Latest Results: TopologyEnergy Breakthrough 🎉
-
-**Key Finding**: Memory-based energy functions catastrophically fail when combined with topology preservation. Our new **TopologyEnergy** approach achieves:
-
-- ✅ **902% better label alignment** (ARI: 0.32 vs 0.03)
-- ✅ **51.6% better trustworthiness** (0.88 vs 0.58)
-- ✅ **Maintained reconstruction** (0.31 vs 11.7M collapse)
-- ✅ **No additional parameters** (data-driven basins)
-
-**See**: 
-- Full paper with results: [`paper/paper_merged.pdf`](paper/paper_merged.pdf)
-- Implementation: [`src/aps/energy/topology_energy.py`](src/aps/energy/topology_energy.py)
-- Experiments: [`experiments/mnist_topo_energy_comparison.py`](experiments/mnist_topo_energy_comparison.py)
-- Analysis: [`docs/TOPOLOGY_ENERGY_SUMMARY.md`](docs/TOPOLOGY_ENERGY_SUMMARY.md)
+> **TL;DR**: Autoencoder architectures possess strong implicit causal bias, achieving 82-86% accuracy on 99% spurious correlations *before* explicit regularization. We establish clear boundary conditions for when topology, causality, and energy regularization help—and when they don't.
 
 ---
 
-## Core Idea: Structured Pattern Space
+## 🎯 Core Finding: Implicit Causal Bias
 
-**APS creates embedding spaces that are not just "similar things close together" but have meaningful geometric structure.**
+**Key Discovery**: Architectural choice (reconstruction) is often more powerful than explicit causal regularization.
 
-Think of it like creating a **map** where:
-- Similar things are neighbors (topology)
-- The map focuses on what matters (causality)
-- Patterns organize into clear regions (energy)
+```
+ColoredMNIST (99% spurious correlation):
+  Autoencoder Baseline:  82-86% accuracy
+  + Topology (T):        +0-2pp gain
+  + Causality (C):       +0-4pp gain
+  + Energy (E):          Prevents overfitting, minimal OOD gain
+
+Conclusion: Architecture is primary, explicit regularizers are secondary corrections.
+```
 
 ---
 
-## The Three Pillars (T-C-E)
+## 📊 Main Results
+
+### 1. Boundary Conditions for Causal Learning (ColoredMNIST)
+
+| Correlation | Baseline | APS-T | APS-C | APS-Full |
+|-------------|----------|-------|-------|----------|
+| 99.5%       | 82.69%   | 82.69%| 82.63%| 82.20%   |
+| 99%/-99%    | 85.98%   | 84.57%| 84.51%| 86.12%   |
+
+**Key Insights**:
+- ✅ **Implicit bias discovered**: Reconstruction forces structural learning
+- ⚠️ **Marginal explicit benefits**: Only 0-4pp improvements
+- 🎯 **Phase transition at 100%**: All methods fail without causal signal
+
+### 2. Topology Preservation: Domain-Specific
+
+| Domain | Dimensionality | Topology Preservation | Result |
+|--------|----------------|----------------------|--------|
+| MNIST  | 784D (pixels)  | ✅ 70% improvement   | Success |
+| Synthetic | 2D (features) | ❌ 0% preservation   | Complete failure |
+
+**Lesson**: Topology requires high-dimensional data with meaningful distance structure.
+
+### 3. Energy Regularization: Consistent but Marginal
+
+| Dataset | Energy Effect | OOD Accuracy Gain |
+|---------|--------------|-------------------|
+| MNIST   | Prevents overfitting | Minimal |
+| AG News | Negative gen gap (-10.82pp) | +0.11pp (noise) |
+
+**Lesson**: Energy is a capacity control mechanism, not an OOD accuracy booster.
+
+---
+
+## 🧪 The APS Framework (Diagnostic Toolkit)
+
+**Atlasing Pattern Space (APS)** is a modular framework combining three regularizers:
 
 ### 1. Topology (T) - Neighborhood Preservation
+```python
+from aps.topology import KNNTopoLoss
 
-**Simple Analogy**: If two cities are neighbors in the real world, they should be neighbors on the map.
-
-**What it does**:
-- Preserves "nearby" relationships from your original data
-- Uses k-nearest neighbors (kNN) to define "neighborhood"
-- Ensures that if point A and B were similar originally, they stay similar in the learned space
-
-**Why it matters**:
-- Standard embeddings often lose neighborhood structure
-- Topology ensures local relationships survive the transformation
-- Critical for manifold learning and cluster preservation
-
-**In code**: `aps.topology.KNNTopoLoss` compares kNN graphs before and after embedding
-
-**Example**:
-```
-Original space: Words "cat", "dog", "puppy" are all close
-     ↓
-Embedding space: They should still be close
-     ✓ Topology preserved if their kNN neighborhoods match
+# Preserves k-nearest neighbor relationships
+topo_loss = KNNTopoLoss(k=8)
+loss = topo_loss(z_latent, x_original)
 ```
 
----
+**When it helps**: High-dimensional vision tasks (MNIST)  
+**When it fails**: Low-dimensional synthetic data (0% preservation)
 
-### 2. Causality (C) - Learning What Matters
+### 2. Causality (C) - Invariance Learning
+```python
+from aps.causality import HSICIndependenceLoss
 
-**Simple Analogy**: Distinguishing between "what makes a good coffee" (beans, roast) vs "what color mug it's in" (irrelevant).
-
-**What it does**:
-- Separates meaningful causal factors from spurious correlations
-- Learns representations that work across different conditions/environments
-- Ignores nuisance variables that don't affect the outcome
-
-**Why it matters**:
-- Data contains both signal and noise
-- Want embeddings that capture true relationships, not artifacts
-- Enables transfer learning and generalization
-
-**In code**: 
-- `aps.causality.HSICIndependenceLoss` - Makes latent factors independent from nuisance variables
-- `aps.causality.IRMLoss` - Learns invariant predictors across environments
-
-**Example**:
-```
-Image classification:
-  - Causal factors: object shape, texture
-  - Nuisance: lighting, angle, background
-  ↓
-Learn embeddings that ignore nuisance, focus on object identity
+# Enforces independence from spurious features
+causal_loss = HSICIndependenceLoss(sigma=1.0)
+loss = causal_loss(z_latent, nuisance_vars)
 ```
 
----
+**When it helps**: Strong spurious correlations (>90%), learnable representations  
+**When it fails**: Weak domain shift (<5%), frozen embeddings
 
 ### 3. Energy (E) - TopologyEnergy (Data-Driven Basins)
-
-**Simple Analogy**: Like valleys that form naturally where water flows - basins emerge from the data's own structure.
-
-**What it does**:
-- Creates energy wells based on local neighborhood density
-- Lower energy where k-NN relationships are preserved
-- No arbitrary memory patterns - structure comes from data itself
-
-**Why it matters**:
-- **Aligns with rather than competes with topology** (902% better label alignment vs memory-based)
-- Organizes embeddings into interpretable regions without preset patterns
-- Avoids catastrophic failure seen with memory-based approaches
-- No additional learnable parameters needed
-
-**In code**: `aps.energy.TopologyEnergy` defines data-driven energy landscapes
-
-**Formula**: `E(z) = -1/k * Σ sim(z, z_neighbors)` where lower energy = high local density
-
-**Key Innovation**: Energy reinforces topology preservation instead of competing with it
-
-**Example**:
-```
-MNIST digit embeddings:
-  Energy landscape emerges from digit similarities
-  Digit "4" → low energy in region where 4's cluster
-  Similar digits (4 and 9) → nearby low-energy regions
-  High energy point → outlier or ambiguous digit
-  
-Result: 902% better ARI than memory-based energy (0.32 vs 0.03)
-```
-
----
-
-## How They Work Together
-
-```
-Raw Data 
-   ↓
-Learn Embedding Space (T + C + E)
-   ↓
-Structured Latent Space
-
-Where:
-  T = Preserves neighborhoods
-  C = Focuses on causal factors
-  E = Organizes into basins
-  
-  = Meaningful, interpretable representations
-```
-
-**Combined objective**:
-```
-L_total = L_task + λ_T * L_topo + λ_C * L_causal + λ_E * L_energy
-```
-
-Each component contributes a different type of structure to the learned space.
-
----
-
-## Practical Intuition
-
-### Text Example: Word Embeddings
-
-**Without APS (standard embedding)**:
-- Words spread out in high-dimensional space
-- Similar words often close, but no guarantees
-- No clear structure beyond distance
-
-**With APS**:
-- **Topology**: Synonyms maintain their local neighborhoods
-- **Causality**: Meaning preserved regardless of tense/case
-- **Energy**: Word categories form distinct basins
-  - Basin 1: Animals (cat, dog, bird...)
-  - Basin 2: Food (pizza, burger, salad...)
-  - Basin 3: Actions (run, jump, swim...)
-
-**Result**: Interpretable, organized, and robust embeddings
-
----
-
-### Image Example: Object Recognition
-
-**Without APS**:
-- Similar objects close in space
-- But lighting/angle can distort relationships
-- Clusters often messy
-
-**With APS**:
-- **Topology**: Similar objects stay clustered
-- **Causality**: Object identity independent of lighting
-- **Energy**: Clear object category regions
-  - Basin 1: Cars
-  - Basin 2: Dogs
-  - Basin 3: Buildings
-
-**Result**: Robust features that transfer across conditions
-
----
-
-### Recommendation Example: User Preferences
-
-**Without APS**:
-- Users with similar purchase history close together
-- But time-dependent trends confuse patterns
-
-**With APS**:
-- **Topology**: Similar users maintain neighborhoods
-- **Causality**: Core preferences separated from seasonal trends
-- **Energy**: User segments as distinct basins
-  - Basin 1: Tech enthusiasts
-  - Basin 2: Fashion followers
-  - Basin 3: Home decorators
-
-**Result**: Stable user representations for personalization
-
----
-
-## Visual Intuition: Energy Landscapes
-
-The 3D visualizations you created show this concept directly:
-
-```
-2D Latent Space (x, y)
-    ↓
-Energy Surface (height = energy)
-    ↓
-Valleys = Pattern basins
-Peaks = High-uncertainty regions
-Red X = Memory patterns (attractor centers)
-```
-
-**What you see**:
-- **Valleys (dark/low)**: Points here are well-represented
-- **Peaks (bright/high)**: Outliers or uncertain regions
-- **Slopes**: Gradient flow direction (where points will move)
-
----
-
-## Why "Atlasing"?
-
-Like making an **atlas** (book of maps):
-
-1. **Maps show relationships** (topology)
-   - Distance between cities
-   - Connecting roads
-
-2. **Focus on important features** (causality)
-   - Major landmarks, not every tree
-   - Meaningful boundaries, not artifacts
-
-3. **Organized by regions** (energy)
-   - Countries have clear boundaries
-   - Cities cluster in habitable zones
-
-**APS creates a structured "atlas" of your data's pattern space.**
-
----
-
-## Key Innovation vs. Standard Embeddings
-
-| Aspect | Standard Embeddings | APS |
-|--------|-------------------|-----|
-| **Goal** | Minimize reconstruction error | ✓ Plus geometric structure |
-| **Neighborhoods** | Hope they're preserved | ✓ Explicitly enforce (T) |
-| **Factors** | Learn any features | ✓ Focus on causal ones (C) |
-| **Organization** | Random/smooth space | ✓ Structured basins (E) |
-| **Interpretability** | Distance only | ✓ Basin membership, energy |
-
----
-
-## Energy Variants: Basin Shapes
-
-### TopologyEnergy (Data-Driven) ⭐ **Recommended**
-```
-  High-Density Region
-        ↓
-     ⤵️⤵️⤵️
-    ⤵️ LOW ⤵️  ← Basins form where
-     ⤵️⤵️⤵️     neighbors cluster
-```
-**Benefits**: 
-- No learnable parameters
-- Aligns with topology (902% better ARI)
-- Avoids catastrophic failure
-- Scales efficiently
-
-**Use for**: All applications (default choice)
-
-### MemoryEnergy (Legacy - Not Recommended)
-```
-  Memory Pattern
-       ↓
-    ⬇️⬇️⬇️  ← Fixed attractor
-     ⬇️⬇️
-      ⬇️
-```
-**Issue**: Competes with topology, causes catastrophic failure
-- Reconstruction error: 11.7M (collapsed)
-- ARI: 0.03 (92% degradation)
-
-**Status**: Deprecated in favor of TopologyEnergy
-
----
-
-## What You Can Do With APS
-
-### 1. **Understand Data Structure**
 ```python
-# Visualize how patterns organize with TopologyEnergy
 from aps.energy import TopologyEnergy
 
-energy_model = TopologyEnergy(k=15)
-energy_values = energy_model(z_latent)  # Lower = denser regions
-# See natural basins forming around high-density clusters
+# Creates energy wells from neighborhood density
+energy = TopologyEnergy(k=15)
+loss = energy(z_latent)  # Lower energy = denser regions
 ```
 
-### 2. **Detect Outliers**
-```python
-# High energy = doesn't fit any pattern
-energy = energy_model.energy(z)
-outliers = energy > threshold
+**Innovation**: **902% better label alignment** vs memory-based energy (ARI: 0.32 vs 0.03)
+
+**Why**: Derives structure from data rather than arbitrary memory patterns
+
+---
+
+## 🚀 Quick Start
+
+### Installation
+```bash
+# Clone repository
+git clone https://github.com/freemanhui/atlasing_pattern_space
+cd atlasing_pattern_space
+
+# Install with all dependencies
+pip install -e ".[topology,causality,dev]"
 ```
 
-### 3. **Generate Valid Samples**
-```python
-# Flow to nearest valid pattern
-z = torch.randn(latent_dim)  # Random noise
-for _ in range(steps):
-    energy.backward()
-    z -= lr * z.grad  # Follow gradient
-# z now represents valid pattern
+### Run ColoredMNIST Experiments
+```bash
+# Full APS (T+C+E)
+python scripts/run_colored_mnist.py --experiment aps-full --epochs 50
+
+# Baseline (no regularization)
+python scripts/run_colored_mnist.py --experiment baseline --epochs 30
+
+# Topology only
+python scripts/run_colored_mnist.py --experiment aps-t --epochs 50
+
+# Causality only  
+python scripts/run_colored_mnist.py --experiment aps-c --epochs 50
 ```
 
-### 4. **Transfer Knowledge**
-```python
-# Memory patterns as reusable knowledge
-pretrained_patterns = energy_model.mem
-new_model.mem.data.copy_(pretrained_patterns)
-```
-
-### 5. **Interpretable Classification**
-```python
-# Basin membership = category
-basin_id = energy_model.nearest_pattern(z)
-category = basin_labels[basin_id]
+### Generate Paper Figures
+```bash
+python scripts/generate_paper_figures.py
 ```
 
 ---
 
-## Initialization Strategies
+## 📁 Repository Structure
 
-Memory patterns (basin centers) can be initialized in different ways:
-
-| Method | When to Use | Example |
-|--------|------------|---------|
-| **Random** | Default baseline | Starting point |
-| **Grid** | Visualization, exploration | Demo energy landscapes |
-| **Cube** | Maximal separation | Categorical extremes |
-| **Sphere** | Normalized data | Word embeddings |
-| **K-means** | Real applications | Data-driven initialization |
-| **Hierarchical** | Multi-scale data | Coarse + fine patterns |
-| **PCA** | Data-driven | Along variance axes |
-
----
-
-## In One Sentence
-
-**APS creates embedding spaces that preserve relationships (T), focus on meaningful factors (C), and organize around learnable patterns (E).**
-
-The 3D visualizations show this structure directly - you can literally see the organized "valleys" (basins) in pattern space!
-
----
-
-## What Makes This Different
-
-Most embedding methods:
 ```
-Data → Neural Network → Embeddings
-              ↓
-         (Hope it works)
-```
-
-APS:
-```
-Data → Neural Network → Embeddings
-              ↓
-     + Topology constraints (T)
-     + Causality objectives (C)
-     + Energy shaping (E)
-              ↓
-     Structured, interpretable space
+atlasing_pattern_space/
+├── src/aps/                    # Core framework
+│   ├── models/                 # APSAutoencoder, APSConvAutoencoder
+│   ├── topology/               # KNNTopoLoss
+│   ├── causality/              # HSICIndependenceLoss, IRMLoss
+│   ├── energy/                 # TopologyEnergy, MemoryEnergy (deprecated)
+│   ├── metrics/                # Evaluation metrics
+│   └── utils/                  # ColoredMNIST, data utilities
+├── scripts/                    # Experiment runners
+│   ├── run_colored_mnist.py   # Main ColoredMNIST experiments
+│   ├── run_tc_conflict_experiment.py  # T-C conflict analysis
+│   └── generate_paper_figures.py      # Paper figures
+├── paper/                      # Research paper
+│   ├── paper_merged.pdf        # Main paper (34 pages)
+│   └── figures/                # All figures and tables
+├── outputs/                    # Experiment results
+└── tests/                      # Unit tests
 ```
 
 ---
 
-## Further Reading
+## 🔑 Key Scientific Contributions
 
-### Key Documents
-- 📝 **Paper**: `paper/paper_merged.pdf` - Full TopologyEnergy results
-- ⭐ **TopologyEnergy Guide**: `docs/topology_energy_guide.md`
-- 📊 **Results Summary**: `docs/TOPOLOGY_ENERGY_SUMMARY.md`
-- 🔧 **Development Guide**: `WARP.md`
-- 💾 **Code**: `src/aps/`
+### 1. Implicit Causal Bias Discovery
+- Autoencoders achieve 82-86% accuracy before explicit regularization
+- Reconstruction forces structural learning, not just memorization
+- **Implication**: Start with the right architecture, then regularize
 
-### Experimental Results
-- MNIST comparison: `experiments/results/ablation_summary.csv`
-- Visualizations: `outputs/topo_energy_comparison/`
-- Analysis notebooks: `experiments/analyze_results.py`
+### 2. Boundary Condition Characterization
+- **Topology**: Fails on low-dimensional data (0% preservation)
+- **Causality**: Needs trainable representations and strong spurious correlations (>90%)
+- **Energy**: Prevents overfitting consistently, but doesn't improve OOD accuracy
 
-The visualizations show TopologyEnergy dramatically outperforming memory-based approaches!
+### 3. Honest Negative Results
+- We report complete failures transparently (topology on synthetic data)
+- Demonstrate that regularizers are not universally beneficial
+- Provide practitioners with decision criteria for when to apply each component
+
+---
+
+## 🎓 Decision Framework
+
+### Component Selection Matrix
+
+| Scenario | T (Topology) | C (Causality) | E (Energy) |
+|----------|--------------|---------------|------------|
+| **High-dim vision** | ✅ Use | ✅ If strong spurious | ✅ Always |
+| **Low-dim synthetic** | ❌ Skip | ✅ Use | ✅ Always |
+| **NLP (frozen BERT)** | ❌ Skip | ❌ Skip | ✅ Use |
+| **NLP (trainable)** | ❓ Test | ✅ Use | ✅ Always |
+
+### When to Use Each Component
+
+**Topology (T)**:
+- ✅ High-dimensional data (>100D)
+- ✅ Meaningful distance structure
+- ❌ Low-dimensional features (<10D)
+- ❌ Weak manifold structure
+
+**Causality (C)**:
+- ✅ Strong spurious correlations (>90%)
+- ✅ Trainable representations
+- ❌ Weak domain shift (<5%)
+- ❌ Frozen pre-trained embeddings
+
+**Energy (E)**:
+- ✅ Always use for overfitting prevention
+- ⚠️ Marginal OOD accuracy gains
+- ✅ Works across all modalities
+
+---
+
+## 🔬 TopologyEnergy Innovation
+
+**Problem**: Memory-based energy functions catastrophically fail when combined with topology.
+
+**Solution**: TopologyEnergy derives energy from data structure, not arbitrary patterns.
+
+### Comparison: MemoryEnergy vs TopologyEnergy
+
+| Metric | MemoryEnergy | TopologyEnergy | Improvement |
+|--------|--------------|----------------|-------------|
+| **Label Alignment (ARI)** | 0.03 | 0.32 | **+902%** |
+| **Trustworthiness** | 0.58 | 0.88 | **+51.6%** |
+| **Reconstruction Error** | 11.7M (collapsed) | 0.31 | **37M× better** |
+| **Parameters** | Learnable memory | None (data-driven) | **0 params** |
+
+**Key Insight**: Energy should emerge from data structure, not impose arbitrary patterns.
+
+---
+
+## 📝 Citation
+
+If you use this code or find our results useful, please cite:
+
+```bibtex
+@article{hui2024boundary,
+  title={When Does Causal Regularization Help? A Systematic Study of Boundary Conditions in Spurious Correlation Learning},
+  author={Hui, Freeman},
+  year={2024},
+  note={arXiv preprint}
+}
+```
+
+---
+
+## 📚 Further Reading
+
+### Research Paper
+- **Main paper**: [`paper/paper_merged.pdf`](paper/paper_merged.pdf) (34 pages)
+- **Key Sections**:
+  - Section 4.1-4.8: ColoredMNIST experiments
+  - Section 4.9: NLP domain shift  
+  - Section 4.10: Topology-Causality conflict
+  - Section 5: Practical guidelines
+
+### Documentation
+- **Development guide**: [`WARP.md`](WARP.md)
+- **Experiment results**: `outputs/`
+
+---
+
+## 📧 Contact
+
+- **Author**: Freeman Hui
+- **GitHub**: [github.com/freemanhui/atlasing_pattern_space](https://github.com/freemanhui/atlasing_pattern_space)
+- **Paper**: [`paper/paper_merged.pdf`](paper/paper_merged.pdf)
+
+For questions, please open an issue on GitHub.
+
+---
+
+## 📜 License
+
+MIT License - see [LICENSE](LICENSE) for details.
