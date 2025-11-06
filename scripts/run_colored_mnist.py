@@ -21,7 +21,6 @@ Expected results:
 
 import argparse
 import json
-import os
 from pathlib import Path
 from typing import Dict, List
 
@@ -30,14 +29,13 @@ import torch.nn as nn
 import torch.optim as optim
 from tqdm import tqdm
 import matplotlib.pyplot as plt
-import seaborn as sns
 
 # Add src to path
 import sys
 sys.path.insert(0, str(Path(__file__).parent.parent / 'src'))
 
 from aps.models.aps_conv_autoencoder import APSConvAutoencoder, APSConvConfig
-from aps.utils.colored_mnist import create_colored_mnist_envs, get_color_label_stats
+from aps.utils.colored_mnist import create_colored_mnist_envs
 from aps.metrics.causality_metrics import compute_causal_metrics
 
 
@@ -72,7 +70,7 @@ def train_epoch(
         # Average loss across environments (IRM-style)
         avg_losses = {}
         for key in env_losses[0].keys():
-            avg_losses[key] = torch.stack([l[key] for l in env_losses]).mean()
+            avg_losses[key] = torch.stack([loss[key] for loss in env_losses]).mean()
         
         # Backward pass
         avg_losses['total'].backward()
@@ -176,9 +174,9 @@ def run_experiment(
         seed=seed,
     )
     
-    print(f"\nDataset statistics:")
-    print(f"  Training envs: 2 (corr=0.995, 0.99) - HARDER TASK")
-    print(f"  Test env: 1 (corr=0.05) - More challenging OOD")
+    print("\nDataset statistics:")
+    print("  Training envs: 2 (corr=0.995, 0.99) - HARDER TASK")
+    print("  Test env: 1 (corr=0.05) - More challenging OOD")
     print(f"  Batch size: {batch_size}")
     
     # Create model

@@ -32,7 +32,6 @@ import torch
 import torch.nn as nn
 import torch.optim as optim
 from tqdm import tqdm
-import matplotlib.pyplot as plt
 
 import sys
 sys.path.insert(0, str(Path(__file__).parent.parent / 'src'))
@@ -70,7 +69,7 @@ def train_epoch(
         
         avg_losses = {}
         for key in env_losses[0].keys():
-            avg_losses[key] = torch.stack([l[key] for l in env_losses]).mean()
+            avg_losses[key] = torch.stack([loss[key] for loss in env_losses]).mean()
         
         # Backward with gradient clipping
         avg_losses['total'].backward()
@@ -135,7 +134,7 @@ def run_experiment(
     exp_dir.mkdir(parents=True, exist_ok=True)
     
     print(f"\n{'='*70}")
-    print(f"ColoredMNIST v3 - ANTI-CORRELATED TEST")
+    print("ColoredMNIST v3 - ANTI-CORRELATED TEST")
     print(f"Experiment: {experiment_name}")
     print(f"  λ_T={lambda_T}, λ_C={lambda_C}, λ_E={lambda_E}")
     print(f"{'='*70}")
@@ -150,11 +149,11 @@ def run_experiment(
         seed=seed,
     )
     
-    print(f"\nDataset Configuration (VERY HARD TASK with 1% causal signal):")
-    print(f"  Training: 99% color-label correlation (1% uncorrelated samples)")
-    print(f"  Test: -99% anti-correlation (color mostly predicts WRONG label)")
-    print(f"  Expected Baseline: ~10-20% (learns color, catastrophic failure on test)")
-    print(f"  Expected APS-C: ~60-70% (learns shape from 1% causal signal)")
+    print("\nDataset Configuration (VERY HARD TASK with 1% causal signal):")
+    print("  Training: 99% color-label correlation (1% uncorrelated samples)")
+    print("  Test: -99% anti-correlation (color mostly predicts WRONG label)")
+    print("  Expected Baseline: ~10-20% (learns color, catastrophic failure on test)")
+    print("  Expected APS-C: ~60-70% (learns shape from 1% causal signal)")
     print(f"  Batch size: {batch_size}\n")
     
     # Create model

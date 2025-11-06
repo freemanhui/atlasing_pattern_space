@@ -15,7 +15,7 @@ from sklearn.metrics import (
     normalized_mutual_info_score,
     silhouette_score,
 )
-from typing import Tuple, Optional
+from typing import Optional
 from aps.metrics.topo import trustworthiness, knn_preservation
 
 
@@ -117,7 +117,6 @@ def compute_hsic(
     Returns:
         HSIC value (non-negative, lower = more independent)
     """
-    from aps.causality.hsic import HSICLoss
     from aps.causality.kernels import rbf_kernel, center_kernel
     
     # Convert to torch tensors

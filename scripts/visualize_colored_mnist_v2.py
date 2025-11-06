@@ -3,7 +3,6 @@
 import json
 import matplotlib.pyplot as plt
 import numpy as np
-from pathlib import Path
 
 # Load results
 exps = ['baseline', 'aps-t', 'aps-c', 'aps-e', 'aps-tc', 'aps-full']
@@ -98,6 +97,6 @@ print(f"2. Best Causal Ratio: {names[best_causal_idx]} ({causal_ratios[best_caus
 best_reliance_idx = np.argmin(np.abs(reliance_gaps))
 print(f"3. Best Reliance Gap (closest to 0): {names[best_reliance_idx]} ({reliance_gaps[best_reliance_idx]:.4f})")
 
-print(f"\n4. Task Difficulty: All models ~82% accuracy (vs 97% on easy task)")
-print(f"5. Energy Component: Now stable with β=1.0, λ_E=0.01")
+print("\n4. Task Difficulty: All models ~82% accuracy (vs 97% on easy task)")
+print("5. Energy Component: Now stable with β=1.0, λ_E=0.01")
 print('='*95)

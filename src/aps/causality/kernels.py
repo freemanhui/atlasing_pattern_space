@@ -128,8 +128,6 @@ def center_kernel(K: torch.Tensor) -> torch.Tensor:
         Centering is essential for HSIC to measure dependence
         relative to the mean, not absolute values.
     """
-    n = K.shape[0]
-    
     # Create centering matrix: H = I - (1/n) * 1·1ᵀ
     # Instead of explicitly creating H, we use efficient computation:
     # H @ K @ H = K - K_row_mean - K_col_mean + K_mean

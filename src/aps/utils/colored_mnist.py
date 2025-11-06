@@ -9,7 +9,6 @@ digit shape (causal feature) rather than color (spurious feature).
 """
 
 import torch
-import torch.nn.functional as F
 from torch.utils.data import Dataset
 from torchvision import datasets, transforms
 from typing import Tuple, List, Optional

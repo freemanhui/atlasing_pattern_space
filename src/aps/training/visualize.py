@@ -6,9 +6,8 @@ Provides functions to plot training curves, loss components, and metrics.
 
 import json
 from pathlib import Path
-from typing import Optional, List, Dict
+from typing import Optional, Dict
 import matplotlib.pyplot as plt
-import numpy as np
 
 
 def plot_loss_curves(

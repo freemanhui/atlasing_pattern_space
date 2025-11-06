@@ -36,8 +36,7 @@ sys.path.insert(0, str(Path(__file__).parent.parent / 'src'))
 
 from aps.data.ag_news_ood import create_ag_news_ood_loaders
 from aps.models import APSConfig, APSAutoencoder
-from aps.training import Trainer, TrainingConfig, OptimizerConfig, SchedulerConfig
-from aps.metrics import knn_preservation, trustworthiness
+from aps.metrics import knn_preservation
 
 
 @dataclass
@@ -233,7 +232,7 @@ def evaluate(
             # Use original BERT embeddings for reference
             # (We'd need to store them - for now just use z as proxy)
             geometric_metrics['knn_preservation'] = knn_preservation(all_z, all_z, k=8).item()
-        except:
+        except Exception:
             pass
     
     return {

@@ -115,7 +115,7 @@ class TestKNNTopoLoss:
         
         # Should handle gracefully (either raise error or adjust k)
         with pytest.raises((ValueError, RuntimeError)):
-            loss = loss_fn(X, Z)
+            _ = loss_fn(X, Z)
     
     def test_forward_device_preservation(self):
         """Test that loss computation works on GPU if available."""
@@ -243,7 +243,7 @@ class TestKNNTopoLossPerformance:
         # Benchmark
         start = time.time()
         for _ in range(10):
-            loss = loss_fn(X, Z)
+            _ = loss_fn(X, Z)
         elapsed = time.time() - start
         
         avg_time = elapsed / 10

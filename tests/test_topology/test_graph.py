@@ -286,7 +286,7 @@ class TestPerformance:
         k = 8
         
         start = time.time()
-        indices = knn_indices(X, k)
+        _ = knn_indices(X, k)
         elapsed = time.time() - start
         
         # Should complete in reasonable time (< 1 second for batch of 128)
@@ -299,7 +299,7 @@ class TestPerformance:
         indices = torch.randint(0, 128, (128, 8))
         
         start = time.time()
-        adj = adjacency_from_knn(indices)
+        _ = adjacency_from_knn(indices)
         elapsed = time.time() - start
         
         # Should be very fast (< 0.1 second)
@@ -313,7 +313,7 @@ class TestPerformance:
         k = 8
         
         start = time.time()
-        adj = knn_graph(X, k, continuous=False)  # Use discrete for consistency with original tests
+        _ = knn_graph(X, k, continuous=False)  # Use discrete for consistency with original tests
         elapsed = time.time() - start
         
         # Combined should still be fast (< 1 second)

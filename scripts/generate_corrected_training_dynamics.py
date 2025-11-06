@@ -150,7 +150,7 @@ print("="*70)
 # Calculate and display gaps
 baseline_gap = baseline_train[-1] - baseline_ood[-1]
 aps_gap = aps_train[-1] - aps_ood[-1]
-print(f"\nGeneralization Gaps:")
+print("\nGeneralization Gaps:")
 print(f"  Baseline: {baseline_gap:+.2f}pp (Table 2: +17.66pp)")
 print(f"  APS-Full: {aps_gap:+.2f}pp (Table 2: -10.82pp)")
 print("\n✓ Figure now shows correct final OOD values matching Table 2")

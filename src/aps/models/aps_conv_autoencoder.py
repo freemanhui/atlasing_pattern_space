@@ -334,7 +334,7 @@ if __name__ == '__main__':
     
     # Test shapes
     x_recon, logits, z = model.forward(x)
-    print(f"\nOutput shapes:")
+    print("\nOutput shapes:")
     print(f"  Reconstruction: {x_recon.shape}")
     print(f"  Logits: {logits.shape}")
     print(f"  Latent: {z.shape}")

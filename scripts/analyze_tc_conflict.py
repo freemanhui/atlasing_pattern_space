@@ -185,7 +185,6 @@ def plot_lambda_sweep(df, output_dir):
 
 def plot_3d_surface(df, output_dir):
     """Plot 3D surface of test accuracy over lambda_T and lambda_C space."""
-    from mpl_toolkits.mplot3d import Axes3D
     
     fig = plt.figure(figsize=(12, 9))
     ax = fig.add_subplot(111, projection='3d')

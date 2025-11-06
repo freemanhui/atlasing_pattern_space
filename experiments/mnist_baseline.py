@@ -18,15 +18,12 @@ import numpy as np
 import matplotlib.pyplot as plt
 from pathlib import Path
 import json
-from datetime import datetime
 
 from aps.models import APSAutoencoder, APSConfig
 from aps.training import Trainer, TrainingConfig, OptimizerConfig
 from utils import (
     get_mnist_dataloaders,
     get_embeddings_from_model,
-    compute_topology_metrics,
-    compute_clustering_metrics,
     evaluate_model_comprehensive,
 )
 
@@ -282,7 +279,7 @@ def main():
     experiment_name = f"mnist_{exp_config['name']}"
     
     print("="*60)
-    print(f"MNIST Baseline Experiment")
+    print("MNIST Baseline Experiment")
     print("="*60)
     print(f"Configuration: {exp_config['name']}")
     print(f"Description: {exp_config['description']}")

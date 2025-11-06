@@ -316,7 +316,7 @@ if __name__ == '__main__':
         seed=42
     )
     
-    print(f"Training set:")
+    print("Training set:")
     print(f"  Shape: {X_train.shape}")
     print(f"  Shape labels: {np.unique(y_train, return_counts=True)}")
     print(f"  Color labels: {np.unique(color_train, return_counts=True)}")
@@ -330,7 +330,7 @@ if __name__ == '__main__':
         seed=43
     )
     
-    print(f"\nTest set:")
+    print("\nTest set:")
     print(f"  Shape: {X_test.shape}")
     print(f"  Color-shape correlation: {(color_test == y_test).mean():.2%}")
     
@@ -361,7 +361,7 @@ if __name__ == '__main__':
     )
     
     batch = next(iter(loaders['train']))
-    print(f"Batch shapes:")
+    print("Batch shapes:")
     for key, val in batch.items():
         print(f"  {key}: {val.shape}")
     

@@ -34,7 +34,6 @@ import sys
 sys.path.insert(0, str(Path(__file__).parent.parent / 'src'))
 
 from aps.models import APSConfig, APSAutoencoder
-from aps.metrics import knn_preservation, trustworthiness
 
 
 @dataclass

@@ -7,7 +7,6 @@ Tracks loss components and training metrics over time.
 import json
 from pathlib import Path
 from typing import Dict, Optional, List
-import torch
 
 
 class MetricsLogger:

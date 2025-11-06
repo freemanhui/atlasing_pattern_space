@@ -439,7 +439,7 @@ class TestHSICLossPerformance:
         # Benchmark
         start = time.time()
         for _ in range(10):
-            loss = loss_fn(Z, V)
+            _ = loss_fn(Z, V)
         elapsed = time.time() - start
         
         avg_time = elapsed / 10

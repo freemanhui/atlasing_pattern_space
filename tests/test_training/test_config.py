@@ -2,7 +2,6 @@
 Tests for training configuration.
 """
 
-import pytest
 from pathlib import Path
 from aps.training.config import TrainingConfig, OptimizerConfig, SchedulerConfig
 

@@ -27,7 +27,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import torch
 import torch.nn as nn
-from torch.utils.data import DataLoader, TensorDataset, Subset
+from torch.utils.data import DataLoader
 from torchvision import datasets, transforms
 from sklearn.linear_model import LogisticRegression
 from sklearn.neighbors import KNeighborsClassifier

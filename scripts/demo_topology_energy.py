@@ -63,7 +63,6 @@ def visualize_energies(X, y, energy_fn, title, ax, is_topology_energy=False):
         if is_topology_energy:
             # For TopologyEnergy, compute local neighborhood preservation
             # by measuring distance to nearest data points and their neighborhoods
-            from aps.topology import knn_indices, adjacency_from_knn
             energies = []
             batch_size = 100  # Process in batches
             for i in range(0, len(grid_points), batch_size):
@@ -172,12 +171,12 @@ def main():
     
     # MemoryEnergy landscape
     visualize_energies(X, y, mem_energy, 
-                      f'MemoryEnergy\n(Arbitrary Attractors)', axes[1],
+                      'MemoryEnergy\n(Arbitrary Attractors)', axes[1],
                       is_topology_energy=False)
     
     # TopologyEnergy landscape (show proximity to data)
     visualize_energies(X, y, topo_energy, 
-                      f'TopologyEnergy\n(Data-Driven)', axes[2],
+                      'TopologyEnergy\n(Data-Driven)', axes[2],
                       is_topology_energy=True)
     
     plt.tight_layout()

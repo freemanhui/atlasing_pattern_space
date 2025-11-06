@@ -11,7 +11,7 @@ This tests whether APS can learn sentiment representations invariant to topic.
 """
 
 import torch
-from torch.utils.data import Dataset, DataLoader, Subset
+from torch.utils.data import Dataset, DataLoader
 from transformers import AutoTokenizer, AutoModel
 from datasets import load_dataset
 from pathlib import Path
@@ -142,7 +142,7 @@ class AGNewsOOD(Dataset):
                 cache_file.unlink()  # Delete corrupted file
         
         # Compute embeddings
-        print(f"Computing BERT embeddings...")
+        print("Computing BERT embeddings...")
         self._compute_embeddings()
         
         # Save cache only if use_cache is True
@@ -151,7 +151,7 @@ class AGNewsOOD(Dataset):
             with open(cache_file, 'wb') as f:
                 pickle.dump(self.embeddings, f)
         else:
-            print(f"  Caching disabled, embeddings computed on-the-fly")
+            print("  Caching disabled, embeddings computed on-the-fly")
     
     def _compute_embeddings(self):
         """Compute BERT [CLS] embeddings for all texts."""

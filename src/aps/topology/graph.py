@@ -5,9 +5,7 @@ This module provides functions to compute k-nearest neighbor graphs
 and convert them to adjacency matrices for topology-preserving losses.
 """
 
-from typing import Tuple
 import torch
-import numpy as np
 from sklearn.neighbors import NearestNeighbors
 
 

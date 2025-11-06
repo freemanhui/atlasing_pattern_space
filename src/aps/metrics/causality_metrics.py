@@ -8,7 +8,7 @@ experiments where we want to verify that models learn to ignore spurious feature
 import torch
 import torch.nn as nn
 import numpy as np
-from typing import Dict, Tuple, Optional
+from typing import Dict, Optional
 from scipy.stats import pearsonr, spearmanr
 
 
@@ -338,6 +338,6 @@ if __name__ == '__main__':
     for k, v in metrics_bad.items():
         print(f"  {k}: {v:.4f}")
     
-    print(f"\nCausal ratio comparison:")
+    print("\nCausal ratio comparison:")
     print(f"  Good model: {metrics_good['causal_ratio']:.4f}")
     print(f"  Bad model: {metrics_bad['causal_ratio']:.4f}")

@@ -2,8 +2,6 @@
 
 import json
 import matplotlib.pyplot as plt
-import numpy as np
-from pathlib import Path
 
 # Load results
 exps = ['baseline', 'aps-t', 'aps-c', 'aps-tc']

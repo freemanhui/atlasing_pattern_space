@@ -11,7 +11,6 @@ import torch
 from torch.utils.data import Dataset, ConcatDataset, DataLoader
 import torchvision
 import torchvision.transforms as transforms
-import numpy as np
 from typing import Literal, Tuple
 
 

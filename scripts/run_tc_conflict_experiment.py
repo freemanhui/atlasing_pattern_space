@@ -17,7 +17,6 @@ import numpy as np
 from tqdm import tqdm
 from dataclasses import dataclass, asdict
 import argparse
-from typing import Optional
 import sys
 
 # Add src to path
@@ -209,7 +208,7 @@ def evaluate_metrics(
         metrics['topo_preservation'] = knn_preservation(
             X_shape.numpy(), z.numpy(), k=8
         ).item()
-    except:
+    except Exception:
         metrics['topo_preservation'] = 0.0
     
     # 3. Color Reliance Gap
@@ -228,7 +227,7 @@ def evaluate_metrics(
             metrics['cluster_quality'] = silhouette_score(
                 z.numpy(), y.numpy()
             )
-        except:
+        except Exception:
             metrics['cluster_quality'] = 0.0
     else:
         metrics['cluster_quality'] = 0.0
@@ -354,7 +353,7 @@ def run_single_experiment(config: TCConflictConfig):
     # Evaluate
     final_metrics = evaluate_metrics(model, test_loader, config.device)
     
-    print(f"\nFinal Metrics:")
+    print("\nFinal Metrics:")
     print(f"  Causal Accuracy: {100*final_metrics['causal_accuracy']:.2f}%")
     print(f"  Topo Preservation: {final_metrics['topo_preservation']:.3f}")
     print(f"  Color Reliance: {final_metrics['color_reliance']:.3f}")
@@ -405,7 +404,7 @@ def run_hyperparameter_sweep():
     lambda_T_values = [0.0, 0.1, 0.5, 1.0, 2.0, 5.0]
     lambda_C_values = [0.0, 0.1, 0.5, 1.0, 2.0, 5.0]
     
-    print(f"Running hyperparameter sweep:")
+    print("Running hyperparameter sweep:")
     print(f"  λ_T: {lambda_T_values}")
     print(f"  λ_C: {lambda_C_values}")
     print(f"  Total: {len(lambda_T_values) * len(lambda_C_values)} configurations")

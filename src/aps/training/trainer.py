@@ -4,11 +4,9 @@ Unified trainer for APS models.
 Provides training loop, validation, checkpointing, and metrics tracking.
 """
 
-from pathlib import Path
-from typing import Optional, Dict, Any, Callable
+from typing import Optional, Dict, Callable
 from tqdm import tqdm
 import torch
-import torch.nn as nn
 from torch.utils.data import DataLoader
 
 from .config import TrainingConfig

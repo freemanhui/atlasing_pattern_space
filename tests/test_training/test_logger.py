@@ -2,9 +2,7 @@
 Tests for metrics logger.
 """
 
-import pytest
 import json
-from pathlib import Path
 from aps.training.logger import MetricsLogger
 
 

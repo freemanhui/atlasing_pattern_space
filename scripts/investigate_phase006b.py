@@ -9,12 +9,8 @@ Analyzes:
 """
 
 import json
-import torch
-import numpy as np
 import matplotlib.pyplot as plt
-import seaborn as sns
 from pathlib import Path
-from collections import defaultdict
 import sys
 
 sys.path.insert(0, str(Path(__file__).parent.parent / 'src'))
@@ -60,7 +56,7 @@ def analyze_sentiment_distribution():
     train_pos_ratio = sum(s['sentiment'] for s in train_ds.samples) / len(train_ds.samples)
     test_pos_ratio = sum(s['sentiment'] for s in test_ds.samples) / len(test_ds.samples)
     
-    print(f"\n📊 Key Finding:")
+    print("\n📊 Key Finding:")
     print(f"  Train positive ratio: {100*train_pos_ratio:.1f}%")
     print(f"  Test positive ratio: {100*test_pos_ratio:.1f}%")
     print(f"  Difference: {abs(train_pos_ratio - test_pos_ratio)*100:.1f}%")
@@ -100,7 +96,7 @@ def analyze_prediction_patterns():
         # Check if model is just predicting the majority class
         final_acc = history['ood_acc'][-1]
         if 0.48 < final_acc < 0.52:
-            print(f"  ⚠️  Model might be predicting random/majority class")
+            print("  ⚠️  Model might be predicting random/majority class")
 
 
 def analyze_loss_components():

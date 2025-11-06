@@ -8,7 +8,7 @@ import json
 import pandas as pd
 from pathlib import Path
 import numpy as np
-from typing import Dict, List
+from typing import Dict
 
 
 def load_experiment_results(output_dir: str = './outputs/phase006b') -> Dict:

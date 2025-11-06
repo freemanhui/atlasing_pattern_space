@@ -12,13 +12,11 @@ Aggregates results from all experiments and generates:
 import argparse
 import json
 from pathlib import Path
-from typing import Dict, List, Tuple
+from typing import Dict
 
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
-import seaborn as sns
-from scipy import stats
 
 
 def load_ablation_results(results_dir: Path = Path("outputs/ablation")) -> Dict:

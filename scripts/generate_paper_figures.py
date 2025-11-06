@@ -13,7 +13,6 @@ import numpy as np
 import matplotlib.pyplot as plt
 import seaborn as sns
 from pathlib import Path
-import pandas as pd
 
 # Set style
 sns.set_style("whitegrid")
@@ -328,7 +327,7 @@ def create_sample_visualizations():
             acc = results["baseline"].get("test_accuracy", 0) * 100
             ratio = results["baseline"].get("causal_ratio", 0)
             
-            text = f"Baseline Results:\n\n"
+            text = "Baseline Results:\n\n"
             text += f"Test Acc: {acc:.1f}%\n"
             text += f"Causal Ratio: {ratio:.2f}"
             

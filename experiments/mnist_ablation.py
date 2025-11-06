@@ -28,12 +28,10 @@ import torch
 import torch.nn as nn
 from torch.utils.data import DataLoader
 from torchvision import datasets, transforms
-from tqdm import tqdm
 
-from aps.topology import KNNTopoLoss, TopologicalAutoencoder
+from aps.topology import KNNTopoLoss
 from aps.causality import HSICLoss
 from aps.energy import MemoryEnergy, MemoryEnergyConfig, TopologyEnergy, TopologyEnergyConfig
-from utils.metrics import evaluate_model_comprehensive
 
 
 def setup_dirs() -> Tuple[Path, Path, Path]:

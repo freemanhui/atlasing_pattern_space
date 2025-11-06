@@ -8,7 +8,6 @@ maintain k-NN adjacency relationships from the original space.
 
 from dataclasses import dataclass
 import torch
-import torch.nn as nn
 from .base import BaseEnergy
 from ..topology.graph import knn_indices, adjacency_from_knn, knn_graph
 

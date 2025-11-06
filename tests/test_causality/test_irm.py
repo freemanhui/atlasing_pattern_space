@@ -207,7 +207,7 @@ class TestIRMLossTraining:
             envs.append((X, y))
         
         # Initial penalty (needs gradients for IRM computation)
-        penalty_init = loss_fn(model, envs).detach()
+        _ = loss_fn(model, envs).detach()
         
         # Train to minimize penalty
         for _ in range(30):
@@ -445,7 +445,7 @@ class TestIRMLossPerformance:
         # Benchmark
         start = time.time()
         for _ in range(5):
-            penalty = loss_fn(model, envs)
+            _ = loss_fn(model, envs)
         elapsed = time.time() - start
         
         avg_time = elapsed / 5

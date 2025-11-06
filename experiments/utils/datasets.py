@@ -9,10 +9,9 @@ Provides standardized data loaders for:
 
 import numpy as np
 import torch
-from torch.utils.data import Dataset, DataLoader, TensorDataset, Subset
+from torch.utils.data import Dataset, DataLoader, Subset
 from torchvision import datasets, transforms
-from typing import Tuple, Optional, List
-from pathlib import Path
+from typing import Tuple, List
 
 
 def get_mnist_dataloaders(

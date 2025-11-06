@@ -17,16 +17,14 @@ For each OOD scenario, we evaluate:
 import argparse
 import json
 from pathlib import Path
-from typing import Dict, List, Tuple, Optional
+from typing import Dict, Tuple
 
 import matplotlib.pyplot as plt
 import numpy as np
 import torch
 import torch.nn as nn
-import torch.nn.functional as F
 from torch.utils.data import DataLoader, TensorDataset
 from torchvision import datasets, transforms
-from scipy.spatial.distance import cdist
 from sklearn.neighbors import KNeighborsClassifier
 
 from aps.topology import KNNTopoLoss

@@ -4,7 +4,6 @@ Tests for kernel functions used in causality module.
 
 import pytest
 import torch
-import numpy as np
 from aps.causality.kernels import rbf_kernel, linear_kernel, center_kernel
 
 
@@ -61,10 +60,6 @@ class TestRBFKernel:
         
         # Smaller sigma → more local → off-diagonal values closer to 0
         # Larger sigma → more global → off-diagonal values closer to 1
-        off_diag_small = K_small[0, 1]
-        off_diag_large = K_large[0, 1]
-        
-        # Not a strict inequality due to randomness, but generally true
         # Just check they're different
         assert not torch.allclose(K_small, K_large, atol=1e-2)
     

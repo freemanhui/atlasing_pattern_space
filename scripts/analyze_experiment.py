@@ -17,7 +17,6 @@ import argparse
 from pathlib import Path
 from aps.training.visualize import (
     plot_loss_curves,
-    plot_step_metrics,
     plot_ablation_comparison,
     plot_all_components,
     create_training_summary,
@@ -98,7 +97,7 @@ def main():
                 print(summary)
         
         if len(experiment_dirs) > 1:
-            print(f"\nGenerating comparison plot...")
+            print("\nGenerating comparison plot...")
             
             if args.save_plots:
                 save_path = output_dir / 'ablation_comparison.png'
@@ -130,8 +129,8 @@ def main():
                     else:
                         print(f"  - {exp}")
                 
-                print(f"\nUse --experiment <name> to analyze a specific experiment")
-                print(f"Use --compare <name1> <name2> ... to compare multiple experiments")
+                print("\nUse --experiment <name> to analyze a specific experiment")
+                print("Use --compare <name1> <name2> ... to compare multiple experiments")
             else:
                 print("No experiments found")
         else:
