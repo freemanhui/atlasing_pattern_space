@@ -160,12 +160,12 @@ class APSAutoencoder(nn.Module):
             x: Input tensor (batch_size, in_dim)
         
         Returns:
-            z: Latent representation (batch_size, latent_dim)
             x_recon: Reconstruction (batch_size, in_dim)
+            z: Latent representation (batch_size, latent_dim)
         """
         z = self.encode(x)
         x_recon = self.decode(z)
-        return z, x_recon
+        return x_recon, z
     
     def compute_loss(
         self,
@@ -188,7 +188,7 @@ class APSAutoencoder(nn.Module):
                 - 'total': Combined loss
         """
         # Forward pass
-        z, x_recon = self.forward(x)
+        x_recon, z = self.forward(x)
         
         # Reconstruction loss (always computed)
         loss_recon = F.mse_loss(x_recon, x)
