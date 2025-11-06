@@ -9,6 +9,9 @@ __pycache__/
 outputs/
 .codex/
 
+# Paper and manuscript files
+paper/
+
 # Data caches and large files
 data/ag_news_cache/
 data/MNIST/

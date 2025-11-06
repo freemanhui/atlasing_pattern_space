@@ -2,7 +2,6 @@
 
 **A Systematic Study of Boundary Conditions in Spurious Correlation Learning**
 
-[![Paper](https://img.shields.io/badge/Paper-PDF-red)](paper/paper_merged.pdf)
 [![Code](https://img.shields.io/badge/Code-Python-blue)](src/aps/)
 [![License](https://img.shields.io/badge/License-MIT-green)](LICENSE)
 
@@ -151,10 +150,7 @@ atlasing_pattern_space/
 ├── scripts/                    # Experiment runners
 │   ├── run_colored_mnist.py   # Main ColoredMNIST experiments
 │   ├── run_tc_conflict_experiment.py  # T-C conflict analysis
-│   └── generate_paper_figures.py      # Paper figures
-├── paper/                      # Research paper
-│   ├── paper_merged.pdf        # Main paper (34 pages)
-│   └── figures/                # All figures and tables
+│   └── generate_paper_figures.py      # Figure generation
 ├── outputs/                    # Experiment results
 └── tests/                      # Unit tests
 ```
@@ -248,14 +244,6 @@ If you use this code or find our results useful, please cite:
 
 ## 📚 Further Reading
 
-### Research Paper
-- **Main paper**: [`paper/paper_merged.pdf`](paper/paper_merged.pdf) (34 pages)
-- **Key Sections**:
-  - Section 4.1-4.8: ColoredMNIST experiments
-  - Section 4.9: NLP domain shift  
-  - Section 4.10: Topology-Causality conflict
-  - Section 5: Practical guidelines
-
 ### Documentation
 - **Development guide**: [`WARP.md`](WARP.md)
 - **Experiment results**: `outputs/`
@@ -266,7 +254,6 @@ If you use this code or find our results useful, please cite:
 
 - **Author**: Freeman Hui
 - **GitHub**: [github.com/freemanhui/atlasing_pattern_space](https://github.com/freemanhui/atlasing_pattern_space)
-- **Paper**: [`paper/paper_merged.pdf`](paper/paper_merged.pdf)
 
 For questions, please open an issue on GitHub.
 
