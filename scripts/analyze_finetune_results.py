@@ -93,8 +93,8 @@ def plot_accuracy_comparison(df, output_dir):
         width = 0.35
         
         # Plot fine-tuned bars
-        bars1 = ax.bar(x_pos, finetune_data[metric], width, 
-                       label='Fine-Tuned', alpha=0.8, color='steelblue')
+        _ = ax.bar(x_pos, finetune_data[metric], width, 
+                   label='Fine-Tuned', alpha=0.8, color='steelblue')
         
         # Add frozen baseline as horizontal line
         frozen_val = frozen_data[metric].values[0]
@@ -189,9 +189,6 @@ def generate_latex_table(df, output_dir):
     """Generate LaTeX table for paper."""
     finetune_data = df[df['Type'] == 'Fine-Tuned'].copy()
     frozen_data = df[df['Type'] == 'Frozen Embeddings'].copy()
-    
-    # Combine for table
-    table_data = pd.concat([frozen_data, finetune_data])
     
     latex_lines = []
     latex_lines.append(r"\begin{table}[t]")
